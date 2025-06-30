@@ -174,11 +174,12 @@ function Customers() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedCustomers.map((row) => (
+              {paginatedCustomers.map((customer) => (
                 <TableRow
+                key={customer.id}
                   hover
                   onClick={() => {
-                    router.push("/admin/customers/customer-detail/${row.id}");
+                    router.push(`/admin/customers/customer-detail/${customer.id}`);
                   }}
                   sx={{ cursor: "pointer" }}
                 >
@@ -187,18 +188,18 @@ function Customers() {
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar src={row.avatar} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Avatar src={customer.avatar} />
+                      <Typography variant="subtitle2">{customer.name}</Typography>
                     </Stack>
                   </TableCell>
-                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{customer.email}</TableCell>
                   <TableCell>
-                    {row.address.city}, {row.address.state},{" "}
-                    {row.address.country}
+                    {customer.address.city}, {customer.address.state},{" "}
+                    {customer.address.country}
                   </TableCell>
-                  <TableCell>{row.phone}</TableCell>
+                  <TableCell>{customer.phone}</TableCell>
                   <TableCell>
-                    {dayjs(row.createdAt).format("MMM D, YYYY")}
+                    {dayjs(customer.createdAt).format("MMM D, YYYY")}
                   </TableCell>
                   <TableCell>
                     <IconButton

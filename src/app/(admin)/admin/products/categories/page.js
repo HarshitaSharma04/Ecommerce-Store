@@ -30,27 +30,22 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-import { DeviceTabletCameraIcon } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 import { DummyCategories } from "@/data/categories-data";
+import { useRouter } from "next/navigation";
 
 function Categories() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
 
-  // const handleClick = () => {
-  //   router.push("/admin/Categories/product-details/${row.id}");
-  // };
-
   const paginatedCategories = DummyCategories.slice(
-    (page-1)*rowsPerPage,
-    page*rowsPerPage
-  )
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
-  const handlePageChange=(event,value)=>{
-    setPage(value)
-  }
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   return (
     <>
@@ -144,9 +139,9 @@ function Categories() {
             color="primary"
             startIcon={<AddCircleRounded />}
             sx={{ textTransform: "none", borderRadius: "8px", p: "9px 15px" }}
-            // onClick={() => {
-            //   router.push("/admin/Categories/add-product");
-            // }}
+            onClick={() => {
+              router.push("/admin/products/categories/add-categories");
+            }}
           >
             Add Categories
           </Button>
@@ -166,17 +161,22 @@ function Categories() {
                 {/* <TableCell>sku</TableCell> */}
                 <TableCell>Description</TableCell>
                 <TableCell>Total Products</TableCell>
-                {/* <TableCell>Stock</TableCell> */}
+                <TableCell>Status</TableCell>
                 {/* <TableCell>Price</TableCell> */}
                 <TableCell>Date</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedCategories.map((row) => (
+              {paginatedCategories.map((category) => (
                 <TableRow
+                  key={category.id}
                   hover
-                  // onClick={handleClick}
+                  onClick={() => {
+                    router.push(
+                      `/admin/products/categories/category-details/${category.id}`
+                    );
+                  }}
                   sx={{ cursor: "pointer" }}
                 >
                   <TableCell padding="checkbox">
@@ -184,17 +184,19 @@ function Categories() {
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar src={row.image} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Avatar src={category.image} />
+                      <Typography variant="subtitle2">
+                        {category.name}
+                      </Typography>
                     </Stack>
                   </TableCell>
                   {/* <TableCell>{row.sku}</TableCell> */}
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>{row.totalProducts}</TableCell>
-                  {/* <TableCell>{row.stock}</TableCell> */}
+                  <TableCell>{category.description}</TableCell>
+                  <TableCell>{category.totalProducts}</TableCell>
+                  <TableCell>{category.status}</TableCell>
                   {/* <TableCell>${row.price.toFixed(2)}</TableCell> */}
                   <TableCell>
-                    {dayjs(row.createdAt).format("MMM D, YYYY")}
+                    {dayjs(category.createdAt).format("MMM D, YYYY")}
                   </TableCell>
                   <TableCell>
                     <IconButton
@@ -215,7 +217,7 @@ function Categories() {
         {/* <Divider sx={{m:5}} /> */}
         <Box m={3} display="flex" justifyContent="center">
           <Pagination
-            count={Math.ceil(DummyCategories.length/rowsPerPage)}
+            count={Math.ceil(DummyCategories.length / rowsPerPage)}
             page={page}
             rowsperpage={rowsPerPage}
             onChange={handlePageChange}

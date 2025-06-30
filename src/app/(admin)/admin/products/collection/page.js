@@ -30,28 +30,22 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-import { DeviceTabletCameraIcon } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 import { DummyCollections } from "@/data/collection-data";
-// import { DummyCollection } from "@/data/Collection-data";
+import { useRouter } from "next/navigation";
 
 function Collection() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
 
-  // const handleClick = () => {
-  //   router.push("/admin/Collection/product-details/${row.id}");
-  // };
-
   const paginatedCollection = DummyCollections.slice(
-    (page-1)*rowsPerPage,
-    page*rowsPerPage
-  )
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
-  const handlePageChange=(event,value)=>{
-    setPage(value)
-  }
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   return (
     <>
@@ -145,9 +139,9 @@ function Collection() {
             color="primary"
             startIcon={<AddCircleRounded />}
             sx={{ textTransform: "none", borderRadius: "8px", p: "9px 15px" }}
-            // onClick={() => {
-            //   router.push("/admin/Collection/add-product");
-            // }}
+            onClick={() => {
+              router.push("/admin/products/collection/add-collection");
+            }}
           >
             Add Collection
           </Button>
@@ -174,10 +168,15 @@ function Collection() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedCollection.map((row) => (
+              {paginatedCollection.map((collection) => (
                 <TableRow
+                  key={collection.id}
                   hover
-                  // onClick={handleClick}
+                  onClick={() => {
+                    router.push(
+                      `/admin/products/collection/collection-details/${collection.id}`
+                    );
+                  }}
                   sx={{ cursor: "pointer" }}
                 >
                   <TableCell padding="checkbox">
@@ -185,17 +184,19 @@ function Collection() {
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar src={row.image} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Avatar src={collection.image} />
+                      <Typography variant="subtitle2">
+                        {collection.name}
+                      </Typography>
                     </Stack>
                   </TableCell>
                   {/* <TableCell>{row.sku}</TableCell> */}
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>{row.totalProducts}</TableCell>
+                  <TableCell>{collection.description}</TableCell>
+                  <TableCell>{collection.totalProducts}</TableCell>
                   {/* <TableCell>{row.stock}</TableCell> */}
                   {/* <TableCell>${row.price.toFixed(2)}</TableCell> */}
                   <TableCell>
-                    {dayjs(row.createdAt).format("MMM D, YYYY")}
+                    {dayjs(collection.createdAt).format("MMM D, YYYY")}
                   </TableCell>
                   <TableCell>
                     <IconButton
@@ -216,7 +217,7 @@ function Collection() {
         {/* <Divider sx={{m:5}} /> */}
         <Box m={3} display="flex" justifyContent="center">
           <Pagination
-            count={Math.ceil(DummyCollections.length/rowsPerPage)}
+            count={Math.ceil(DummyCollections.length / rowsPerPage)}
             page={page}
             rowsperpage={rowsPerPage}
             onChange={handlePageChange}

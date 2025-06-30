@@ -12,8 +12,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -27,9 +29,44 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("Login Data:", data);
+
     // Add your login logic here
+    try {
+      const res = await fetch("api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      let result;
+      try {
+        result = await res.json();
+      } catch (err) {
+        console.log("Login failed", err);
+      }
+      if (res.ok) {
+        console.log("Login Success:", result);
+        
+        // ✅ Extract role safely
+        const role = result?.user?.role;
+        setTimeout(() => {
+          if (role === "admin") {
+            router.push("/admin");
+          } else if (role === "customer") {
+            router.push("/all-products");
+          } else {
+            router.push("/");
+          }
+        }, 2000);
+      } else {
+        console.log("Login failed:", result?.message || "Something went wrong");
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   return (

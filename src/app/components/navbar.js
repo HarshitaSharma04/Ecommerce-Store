@@ -64,9 +64,9 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-            <Button component={Link} href="/" sx={{ color: "#b5c0d2" }}>
+            {/* <Button component={Link} href="/" sx={{ color: "#b5c0d2" }}>
               Home
-            </Button>
+            </Button> */}
             <Button component={Link} href="/all-products" sx={{ color: "#b5c0d2" }}>
               Products
             </Button>

@@ -3,15 +3,13 @@ import { Box, Typography } from "@mui/material";
 import { useParams } from "next/navigation";
 import React from "react";
 
-function CustomerDetailPage() {
+function CategoryDetails() {
   const { id } = useParams();
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        customer Details
-      </Typography>
+      <Typography gutterBottom>product category details - {id}</Typography>
     </Box>
   );
 }
 
-export default CustomerDetailPage;
+export default CategoryDetails;

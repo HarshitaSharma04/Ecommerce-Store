@@ -8,13 +8,16 @@ import {
   Stack,
   IconButton,
   InputAdornment,
+  MenuItem,
 } from "@mui/material";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -24,8 +27,38 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("signUp data:", data);
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      let result;
+      try {
+        result = await res.json();
+      } catch (err) {
+        console.log("JSON parsing failed", err);
+      }
+
+      if (res.ok) {
+        console.log("Signup success:", result);
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      } else {
+        console.log(
+          "Signup failed:",
+          result?.message || "Something went wrong"
+        );
+      }
+    } catch (error) {
+      console.log("Signup error:", error);
+    }
   };
 
   return (
@@ -119,6 +152,20 @@ export default function SignupPage() {
             ),
           }}
         />
+
+        <TextField
+          fullWidth
+          select
+          label="Role"
+          margin="normal"
+          defaultValue="customer"
+          {...register("role", { required: "Role is required" })}
+          error={!!errors.role}
+          helperText={errors.role?.message}
+        >
+          <MenuItem value="admin">Add as a Admin</MenuItem>
+          <MenuItem value="customer">Add as a Customer</MenuItem>
+        </TextField>
 
         <Button
           fullWidth

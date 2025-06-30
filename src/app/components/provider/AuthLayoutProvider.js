@@ -10,8 +10,8 @@ export default function AuthLayoutProvider({ children }) {
 
   return (
     <Box
-      component={Link}
-      href="/"
+      // component={Link}
+      // href="/"
       sx={{
         display: { xs: "flex", lg: "grid" },
         flexDirection: "column",
@@ -24,6 +24,8 @@ export default function AuthLayoutProvider({ children }) {
       <Box sx={{ display: "flex", flex: "1 1 auto", flexDirection: "column" }}>
         {/* Logo */}
         <Box
+        component={Link}
+        href="/"
           sx={{
             p: 3,
             display: "flex",

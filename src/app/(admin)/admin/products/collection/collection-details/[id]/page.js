@@ -1,4 +1,3 @@
-// src/app/(admin)/admin/products/[id]/page.jsx
 "use client";
 import { useParams } from "next/navigation";
 import { Typography, Box } from "@mui/material";
@@ -8,9 +7,7 @@ export default function ProductDetailPage() {
 
   return (
     <Box p={4}>
-      <Typography  gutterBottom>
-        Product Details - {id}
-      </Typography>
+      <Typography gutterBottom>Collection details</Typography>
     </Box>
   );
 }

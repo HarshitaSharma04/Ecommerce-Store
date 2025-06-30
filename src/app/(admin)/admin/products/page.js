@@ -39,18 +39,14 @@ function Products() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
 
-  const handleClick = () => {
-    router.push("/admin/products/product-details/${row.id}");
-  };
-
   const paginatedProducts = dummyProducts.slice(
-    (page-1)*rowsPerPage,
-    page*rowsPerPage
-  )
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
-  const handlePageChange=(event,value)=>{
-    setPage(value)
-  }
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   return (
     <>
@@ -173,10 +169,15 @@ function Products() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedProducts.map((row) => (
+              {paginatedProducts.map((product) => (
                 <TableRow
+                  key={product.id}
                   hover
-                  onClick={handleClick}
+                  onClick={() => {
+                    router.push(
+                      `/admin/products/product-details/${product.id}`
+                    );
+                  }}
                   sx={{ cursor: "pointer" }}
                 >
                   <TableCell padding="checkbox">
@@ -184,17 +185,19 @@ function Products() {
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar src={row.image} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Avatar src={product.image} />
+                      <Typography variant="subtitle2">
+                        {product.name}
+                      </Typography>
                     </Stack>
                   </TableCell>
-                  <TableCell>{row.sku}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.collection}</TableCell>
-                  <TableCell>{row.stock}</TableCell>
-                  <TableCell>${row.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.sku}</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.collection}</TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>
-                    {dayjs(row.createdAt).format("MMM D, YYYY")}
+                    {dayjs(product.createdAt).format("MMM D, YYYY")}
                   </TableCell>
                   <TableCell>
                     <IconButton
@@ -215,7 +218,7 @@ function Products() {
         {/* <Divider sx={{m:5}} /> */}
         <Box m={3} display="flex" justifyContent="center">
           <Pagination
-            count={Math.ceil(dummyProducts.length/rowsPerPage)}
+            count={Math.ceil(dummyProducts.length / rowsPerPage)}
             page={page}
             rowsperpage={rowsPerPage}
             onChange={handlePageChange}
