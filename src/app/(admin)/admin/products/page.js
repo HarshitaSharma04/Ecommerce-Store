@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-import { dummyProducts } from "@/data/products-data";
+import { dummyProducts } from "@/data/admin-dummy-data/products-data";
 import { DeviceTabletCameraIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 

@@ -13,79 +13,54 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-// Icons
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
-import GroupIcon from "@mui/icons-material/Group";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SettingsIcon from "@mui/icons-material/Settings";
-import CategoryIcon from "@mui/icons-material/Category";
-import CollectionsIcon from "@mui/icons-material/Collections";
-import CompareArrowsOutlined from "@mui/icons-material/CompareArrowsOutlined";
+import {  ListAlt } from "@mui/icons-material";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import DashboardIcon from "@mui/icons-material/Dashboard";
+
 
 const drawerWidth = 260;
 
 // Navigation items with children for Products
 const navItems = [
   {
-    text: "Overview",
-    href: "/admin",
-    icon: <DashboardIcon sx={{ color: "#3f51b5", fontSize: "25px" }} />,
+    text: "Dashboard",
+    href:"/dashboard",
+     icon: <DashboardIcon sx={{ fontSize: 24 , color: "#3f51b5" }} />,
   },
   {
-    text: "Products",
-    href: "/admin/products",
-    icon: <Inventory2Icon sx={{ color: "#009688", fontSize: "25px" }} />,
-    children: [
-      {
-        text: "Categories",
-        href: "/admin/products/categories",
-        icon: <CategoryIcon sx={{ color: "#ff9800", fontSize: "25px" }} />,
-      },
-      {
-        text: "Collection",
-        href: "/admin/products/collection",
-        icon: <CollectionsIcon sx={{ color: "#9c27b0", fontSize: "25px" }} />,
-      },
-    ],
+    text: "My Orders",
+    href:"/orders",
+    icon: <ListAlt sx={{ fontSize: 24, color: "#009688" }} />,
   },
   {
-    text: "Customers",
-    href: "/admin/customers",
-    icon: <GroupIcon sx={{ color: "#00bcd4", fontSize: "25px" }} />,
-  },
-  {
-    text: "Orders",
-    href: "/admin/orders",
-    icon: <ShoppingCartIcon sx={{ color: "#4caf50", fontSize: "25px" }} />,
+    text: "Wishlist",
+    href:"/wishlist",
+    icon: <FavoriteIcon sx={{ fontSize: 24 , color: "#e91e63"  }}/>,
   },
   {
     text: "Account",
-    href: "/admin/account",
-    icon: <AccountCircleIcon sx={{ color: "#f44336", fontSize: "25px" }} />,
+    href:"/account",
+    icon: <AccountCircleIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
   },
   {
-    text: "Settings",
-    href: "/admin/settings",
-    icon: <SettingsIcon sx={{ color: "#795548", fontSize: "25px" }} />,
-  },
-  {
-    text: "Transaction",
-    href: "/admin/transactions",
-    icon: <CompareArrowsOutlined sx={{ color: "#607d8b", fontSize: "25px" }} />,
+    text: "Cart",
+    href:"/carts",
+    icon: <ShoppingCartIcon sx={{ fontSize: 28, color: "#4caf50" }} />,
   },
 ];
 
-export default function AdminSidebar({ children }) {
-  const pathname = usePathname();
-
+export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
+    const pathname = usePathname();
   return (
     <Box sx={{ display: "flex" }}>
       {/* Sidebar Drawer */}
       <Drawer
-        variant="permanent"
+      anchor="right"
+        variant="temporary"
+        open={open}
+        onClose={handleClose}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -126,7 +101,7 @@ export default function AdminSidebar({ children }) {
 
         {/* Navigation Items */}
         <List>
-          {navItems.map(({ text, href, icon, children }) => {
+          {navItems.map(({ text, icon,href }) => {
             const isActive = pathname === href;
             const isChildActive = children?.some(
               (child) => pathname === child.href
@@ -145,6 +120,7 @@ export default function AdminSidebar({ children }) {
                     }}
                   >
                     <ListItemButton
+                    onClick={handleClose}
                       sx={{
                         px: 3,
                         py: 1.2,
@@ -177,54 +153,6 @@ export default function AdminSidebar({ children }) {
                     </ListItemButton>
                   </Link>
                 </ListItem>
-
-                {/* Child Items */}
-                {children?.map((child) => {
-                  const isChildSelected = pathname === child.href;
-                  return (
-                    <ListItem key={child.href} disablePadding sx={{ pl: 4 }}>
-                      <Link
-                        href={child.href}
-                        style={{
-                          textDecoration: "none",
-                          color: "inherit",
-                          width: "100%",
-                        }}
-                      >
-                        <ListItemButton
-                          sx={{
-                            px: 3,
-                            py: 1,
-                            color: isChildSelected ? "#fff" : "#cbd5e1",
-                            backgroundColor: isChildSelected
-                              ? "#1e293b"
-                              : "transparent",
-                            "&:hover": {
-                              backgroundColor: "#1e293b",
-                              color: "#fff",
-                            },
-                          }}
-                        >
-                          <ListItemIcon
-                            sx={{
-                              color: isChildSelected ? "#38bdf8" : "#94a3b8",
-                              minWidth: "36px",
-                            }}
-                          >
-                            {child.icon}
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={child.text}
-                            primaryTypographyProps={{
-                              fontSize: 14,
-                              fontWeight: isChildSelected ? "bold" : "normal",
-                            }}
-                          />
-                        </ListItemButton>
-                      </Link>
-                    </ListItem>
-                  );
-                })}
               </React.Fragment>
             );
           })}

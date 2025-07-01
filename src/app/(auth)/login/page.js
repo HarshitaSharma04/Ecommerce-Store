@@ -49,16 +49,14 @@ export default function LoginPage() {
       }
       if (res.ok) {
         console.log("Login Success:", result);
-        
+
         // ✅ Extract role safely
         const role = result?.user?.role;
         setTimeout(() => {
           if (role === "admin") {
             router.push("/admin");
-          } else if (role === "customer") {
-            router.push("/all-products");
           } else {
-            router.push("/");
+            router.push("/profile");
           }
         }, 2000);
       } else {

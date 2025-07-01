@@ -29,7 +29,7 @@ import {
   Search as SearchIcon,
 } from "@mui/icons-material";
 
-import { dummyCustomers } from "../../../../data/customer-data";
+import { dummyCustomers } from "../../../../data/admin-dummy-data/customer-data";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 

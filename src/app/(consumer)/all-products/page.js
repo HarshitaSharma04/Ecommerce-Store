@@ -1,5 +1,5 @@
 "use client";
-import { AllDummyProducts } from "@/data/all-dummy-products";
+import { AllDummyProducts } from "@/data/admin-dummy-data/all-dummy-products";
 import {
   Box,
   Button,

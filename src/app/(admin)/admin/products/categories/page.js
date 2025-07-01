@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-import { DummyCategories } from "@/data/categories-data";
+import { DummyCategories } from "@/data/admin-dummy-data/categories-data";
 import { useRouter } from "next/navigation";
 
 function Categories() {

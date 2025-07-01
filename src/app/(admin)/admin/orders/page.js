@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { DummyOrders } from "@/data/dummy-orders";
+import { DummyOrders } from "@/data/admin-dummy-data/dummy-orders";
 
 export default function Orders() {
   const router = useRouter();
