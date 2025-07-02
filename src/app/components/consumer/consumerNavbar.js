@@ -12,6 +12,7 @@ import {
   ListItemIcon,
   Typography,
   Divider,
+  AppBar,
 } from "@mui/material";
 import {
   BellIcon,
@@ -26,8 +27,10 @@ import GroupIcon from "@mui/icons-material/Group";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
-function ConsumerNavbar({onToggleDrawer}) {
+function ConsumerNavbar({ onToggleDrawer }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
@@ -45,19 +48,16 @@ function ConsumerNavbar({onToggleDrawer}) {
     router.push(path);
   };
 
-  const handleDrawerToggle=()=>{
-
-  }
 
   return (
-    <Box
-      component="header"
+    <AppBar
+      position="static"
+      elevation={1}
       sx={{
-        borderBottom: "1px solid var(--mui-palette-divider)",
-        backgroundColor: "var(--mui-palette-background-paper)",
-        position: "sticky",
-        top: 0,
-        zIndex: "var(--mui-zIndex-appBar)",
+        background:
+          "linear-gradient(135deg, #15b79e 0%, #b5c0d2 40%, #122647 100%)",
+        color: "#d2f5ee",
+        py: 1,
       }}
     >
       <Stack
@@ -66,26 +66,41 @@ function ConsumerNavbar({onToggleDrawer}) {
         sx={{
           alignItems: "center",
           justifyContent: "space-between",
-          minHeight: "64px",
-          px: 2,
+          height: "50px",
+          px:6,
+          py: 4,
         }}
       >
         {/* Left */}
         <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
-          <Tooltip title="Search">
-            <IconButton>
-              <MagnifyingGlassIcon />
-            </IconButton>
-          </Tooltip>
+         <Box
+            component={Link}
+            href="/"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              textDecoration: "none",
+            }}
+          >
+            <Image
+              src="/logo.svg"
+              alt="ShopSmart Logo"
+              width={60}
+              height={60}
+            />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#192c4b", ml: 1 }}
+            >
+              ShopSmart
+            </Typography>
+          </Box>
+          
         </Stack>
 
         {/* Right */}
         <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
-          <Tooltip title="Contacts">
-            <IconButton>
-              <GroupIcon fontSize="medium" sx={{ color: "#00bcd4" }} />
-            </IconButton>
-          </Tooltip>
           <Tooltip title="Notifications">
             <Badge badgeContent={4} color="success" variant="dot">
               <IconButton>
@@ -96,7 +111,7 @@ function ConsumerNavbar({onToggleDrawer}) {
               </IconButton>
             </Badge>
           </Tooltip>
-          
+
           {/* <Avatar
             onClick={handleAvatarClick}
             // src="/assets/avatar.png"
@@ -174,7 +189,7 @@ function ConsumerNavbar({onToggleDrawer}) {
           </MenuItem>
         </Menu>
       </Stack>
-    </Box>
+    </AppBar>
   );
 }
 

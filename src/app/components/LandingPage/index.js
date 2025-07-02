@@ -42,7 +42,6 @@ export default function LandingPage() {
 
   return (
     <main>
-      <Navbar />
       <Box>
         {/* Hero Section */}
         <Box
@@ -179,7 +178,6 @@ export default function LandingPage() {
           </Box>
         </Container>
       </Box>
-      <Footer />
     </main>
   );
 }

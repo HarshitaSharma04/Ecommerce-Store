@@ -1,9 +1,10 @@
-// src/app/(consumer)/all-products/layout.js
-"use client"
+// src/app/(consumer)/layout.js
+"use client";
 import React, { useState } from "react";
 import ConsumerNavbar from "../components/consumer/consumerNavbar";
 import ConsumerLayoutProvider from "../components/provider/ConsumerLayoutProvider";
 import { Divider } from "@mui/material";
+import Footer from "../components/footer";
 
 export default function AllProductsLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -14,8 +15,8 @@ export default function AllProductsLayout({ children }) {
     // <>
     <ConsumerLayoutProvider open={drawerOpen} handleClose={closeDrawer}>
       <ConsumerNavbar onToggleDrawer={toggleDrawer} />
-      <Divider sx={{ borderColor: "#39588433", my: 1 }} />
       {children}
+      <Footer />
     </ConsumerLayoutProvider>
     // </>
   );

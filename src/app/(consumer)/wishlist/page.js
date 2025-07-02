@@ -15,9 +15,16 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { motion } from "framer-motion";
 import { DummyWishlistItems } from "@/data/consumer-dummy-data/dummy-wishlist";
+import PaginationComponents from "@/app/components/common/paginationComponents";
 
 function WishlistPage() {
+  const itemsPerPage = 5
   const [wishlistItems, setWishlistItems] = useState(DummyWishlistItems);
+  const [currentPage, setCurrenPage] = useState(1);
+  const currentItems = wishlistItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleToggleFavorite = (id) => {
     const updated = wishlistItems.map((item) =>
@@ -33,7 +40,7 @@ function WishlistPage() {
       </Typography>
 
       <Stack spacing={3}>
-        {wishlistItems.map((item, index) => (
+        {currentItems.map((item, index) => (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, y: 30 }}
@@ -133,6 +140,13 @@ function WishlistPage() {
             </Box>
           </motion.div>
         ))}
+
+        <PaginationComponents
+          totalItems={wishlistItems.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={(page) => setCurrenPage(page)}
+        />
       </Stack>
     </Container>
   );

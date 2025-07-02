@@ -10,15 +10,23 @@ import {
   Divider,
   Stack,
   Rating,
+  Pagination,
 } from "@mui/material";
 import Image from "next/image";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { motion } from "framer-motion";
 import { DummyOrders } from "@/data/consumer-dummy-data/dummy-order";
+import PaginationComponents from "@/app/components/common/paginationComponents";
 
 function OrderPage() {
+  const itemsPerPage = 5;
   const [orderItems, setOrderItems] = useState(DummyOrders);
+  const [currentPage, setCurrenPage] = useState(1);
+  const currentItems = orderItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleToggleFavorite = (id) => {
     const updated = orderItems.map((item) =>
@@ -34,7 +42,7 @@ function OrderPage() {
       </Typography>
 
       <Stack spacing={3}>
-        {orderItems.map((order, index) => {
+        {currentItems.map((order, index) => {
           const product = order.products[0];
           return (
             <motion.div
@@ -86,7 +94,9 @@ function OrderPage() {
 
                 {/* Order Details */}
                 <Box flex={1} ml={2}>
-                  <Typography fontWeight="bold">{product.productName}</Typography>
+                  <Typography fontWeight="bold">
+                    {product.productName}
+                  </Typography>
                   <Typography fontSize={14} color="text.secondary">
                     Quantity: {product.quantity}
                   </Typography>
@@ -129,6 +139,13 @@ function OrderPage() {
             </motion.div>
           );
         })}
+
+        <PaginationComponents
+          totalItems={orderItems.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={(page) => setCurrenPage(page)}
+        />
       </Stack>
     </Container>
   );

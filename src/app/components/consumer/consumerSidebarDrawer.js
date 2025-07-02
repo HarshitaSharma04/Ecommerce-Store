@@ -18,7 +18,7 @@ import {  ListAlt } from "@mui/icons-material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DashboardIcon from "@mui/icons-material/Dashboard";
-
+import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 
 const drawerWidth = 260;
 
@@ -39,22 +39,29 @@ const navItems = [
     href:"/wishlist",
     icon: <FavoriteIcon sx={{ fontSize: 24 , color: "#e91e63"  }}/>,
   },
-  {
-    text: "Account",
-    href:"/account",
-    icon: <AccountCircleIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
-  },
+  // {
+  //   text: "Checkout",
+  //   href:"/checkouts",
+  //   icon: <ShoppingCartCheckoutIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
+  // },
   {
     text: "Cart",
     href:"/carts",
     icon: <ShoppingCartIcon sx={{ fontSize: 28, color: "#4caf50" }} />,
   },
+  {
+    text: "Account",
+    href:"/account",
+    icon: <AccountCircleIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
+  },
+  
+
 ];
 
 export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
     const pathname = usePathname();
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex"}}>
       {/* Sidebar Drawer */}
       <Drawer
       anchor="right"
@@ -164,7 +171,7 @@ export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          // p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: "#f8fafc",
           minHeight: "100vh",
