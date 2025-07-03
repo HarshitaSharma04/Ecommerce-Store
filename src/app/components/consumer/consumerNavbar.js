@@ -29,6 +29,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import DehazeIcon from "@mui/icons-material/Dehaze";
 
 function ConsumerNavbar({ onToggleDrawer }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -48,7 +49,6 @@ function ConsumerNavbar({ onToggleDrawer }) {
     router.push(path);
   };
 
-
   return (
     <AppBar
       position="static"
@@ -67,13 +67,13 @@ function ConsumerNavbar({ onToggleDrawer }) {
           alignItems: "center",
           justifyContent: "space-between",
           height: "50px",
-          px:6,
+          px: 6,
           py: 4,
         }}
       >
         {/* Left */}
         <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
-         <Box
+          <Box
             component={Link}
             href="/"
             sx={{
@@ -96,7 +96,6 @@ function ConsumerNavbar({ onToggleDrawer }) {
               ShopSmart
             </Typography>
           </Box>
-          
         </Stack>
 
         {/* Right */}
@@ -105,8 +104,8 @@ function ConsumerNavbar({ onToggleDrawer }) {
             <Badge badgeContent={4} color="success" variant="dot">
               <IconButton>
                 <NotificationsIcon
-                  fontSize="medium"
-                  sx={{ color: "#f57c00" }}
+                  // fontSize="lg"
+                  sx={{ color: "#f57c00", fontSize: 25 }}
                 />
               </IconButton>
             </Badge>
@@ -120,7 +119,7 @@ function ConsumerNavbar({ onToggleDrawer }) {
 
           <Tooltip title="sidebar" onClick={onToggleDrawer}>
             <IconButton>
-              <ViewSidebarIcon fontSize="medium" sx={{ color: "#1976d2" }} />
+              <DehazeIcon sx={{ color: "#1976d2", fontSize: 30 }} />
             </IconButton>
           </Tooltip>
         </Stack>
@@ -155,6 +154,7 @@ function ConsumerNavbar({ onToggleDrawer }) {
               flexDirection: "column",
               alignItems: "flex-start",
             }}
+            
           >
             <Typography fontWeight="bold" fontSize={14}>
               Harshita Sharma

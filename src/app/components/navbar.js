@@ -77,12 +77,12 @@ export default function Navbar() {
             >
               Categories
             </Button>
-            <Button component={Link} href="/admin" sx={{ color: "#b5c0d2" }}>
+            {/* <Button component={Link} href="/admin" sx={{ color: "#b5c0d2" }}>
               Admin
             </Button>
             <Button component={Link} href="/profile" sx={{ color: "#b5c0d2" }}>
               Customer
-            </Button>
+            </Button> */}
             <Button component={Link} href="/login" sx={{ color: "#b5c0d2" }}>
               Login
             </Button>

@@ -13,8 +13,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 export default function LoginPage() {
+  const [authError, setAuthError] = useState("");
   const router = useRouter();
   const {
     register,
@@ -30,37 +33,24 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data) => {
+    setAuthError("");
     console.log("Login Data:", data);
 
     // Add your login logic here
     try {
-      const res = await fetch("api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
       });
-      let result;
-      try {
-        result = await res.json();
-      } catch (err) {
-        console.log("Login failed", err);
-      }
-      if (res.ok) {
-        console.log("Login Success:", result);
 
-        // ✅ Extract role safely
-        const role = result?.user?.role;
-        setTimeout(() => {
-          if (role === "admin") {
-            router.push("/admin");
-          } else {
-            router.push("/dashboard");
-          }
-        }, 2000);
+      const session = await getSession();
+      console.log("session:", session)
+      const role = session?.user?.role;
+      if (role === "admin") {
+        router.push("/admin");
       } else {
-        console.log("Login failed:", result?.message || "Something went wrong");
+        router.push("/profile");
       }
     } catch (error) {
       console.log("error:", error);
@@ -80,6 +70,12 @@ export default function LoginPage() {
       </Stack>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        {authError && (
+          <FormHelperText error sx={{ mt: -1, mb: 1 }}>
+            {authError}
+          </FormHelperText>
+        )}
+
         <Stack spacing={2}>
           {/* Email Field */}
           <TextField

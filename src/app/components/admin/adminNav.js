@@ -23,6 +23,7 @@ import {
 } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 function AdminNav() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -149,7 +150,7 @@ function AdminNav() {
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => alert("Signing out...")}>
+          <MenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
             <Box display="flex" alignItems="center" gap={1}>
               <SignOut size={18} />
               <Typography variant="inherit">Sign Out</Typography>

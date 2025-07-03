@@ -20,7 +20,49 @@ model User {
   email     String   @unique
   password  String
   avatar    String?
-  role      String   // 'admin' or 'consumer'
+  role      String   // 'admin' or 'customer'
   createdAt DateTime @default(now())
+
+   // Relation to Product - corrected
+  products  Product[] @relation("UserProducts")
+}
+
+type Variant {
+  variantId   String
+  name        String
+  description String
+  price       Float
+  stock       Int
+  image       String
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sku         String
+  slug        String   @unique
+  name        String
+  description String
+  variant     Variant[]
+  image       String
+  status      String   @default("active")
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  // Relation to User - corrected
+  user        User     @relation("UserProducts", fields: [merchantId], references: [id])
+  merchantId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String    @unique
+  description String
+  image       String
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 

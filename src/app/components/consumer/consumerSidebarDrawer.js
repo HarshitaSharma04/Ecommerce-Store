@@ -14,11 +14,12 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import {  ListAlt } from "@mui/icons-material";
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { ListAlt, LogoutOutlined } from "@mui/icons-material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
+import { signOut } from "next-auth/react";
 
 const drawerWidth = 260;
 
@@ -26,45 +27,43 @@ const drawerWidth = 260;
 const navItems = [
   {
     text: "Dashboard",
-    href:"/dashboard",
-     icon: <DashboardIcon sx={{ fontSize: 24 , color: "#3f51b5" }} />,
+    href: "/dashboard",
+    icon: <DashboardIcon sx={{ fontSize: 24, color: "#3f51b5" }} />,
   },
   {
     text: "My Orders",
-    href:"/orders",
+    href: "/orders",
     icon: <ListAlt sx={{ fontSize: 24, color: "#009688" }} />,
   },
   {
     text: "Wishlist",
-    href:"/wishlist",
-    icon: <FavoriteIcon sx={{ fontSize: 24 , color: "#e91e63"  }}/>,
+    href: "/wishlist",
+    icon: <FavoriteIcon sx={{ fontSize: 24, color: "#e91e63" }} />,
   },
-  // {
-  //   text: "Checkout",
-  //   href:"/checkouts",
-  //   icon: <ShoppingCartCheckoutIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
-  // },
   {
     text: "Cart",
-    href:"/carts",
+    href: "/carts",
     icon: <ShoppingCartIcon sx={{ fontSize: 28, color: "#4caf50" }} />,
   },
   {
-    text: "Account",
-    href:"/account",
-    icon: <AccountCircleIcon sx={{ fontSize: 24, color: "#ff9800"  }} />,
+    text: "Profile",
+    href: "/profile",
+    icon: <AccountCircleIcon sx={{ fontSize: 24, color: "#ff9800" }} />,
   },
-  
-
+  {
+    text: "Logout",
+    action: () => signOut({ callbackUrl: "/login" }),
+    icon: <LogoutOutlined sx={{ fontSize: 24, color: "#ff0808" }} />,
+  },
 ];
 
-export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
-    const pathname = usePathname();
+export default function ConsumerSidebarDrawer({ children, open, handleClose }) {
+  const pathname = usePathname();
   return (
-    <Box sx={{ display: "flex"}}>
+    <Box sx={{ display: "flex" }}>
       {/* Sidebar Drawer */}
       <Drawer
-      anchor="right"
+        anchor="right"
         variant="temporary"
         open={open}
         onClose={handleClose}
@@ -108,7 +107,7 @@ export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
 
         {/* Navigation Items */}
         <List>
-          {navItems.map(({ text, icon,href }) => {
+          {navItems.map(({ text, icon, href, action }) => {
             const isActive = pathname === href;
             const isChildActive = children?.some(
               (child) => pathname === child.href
@@ -118,16 +117,53 @@ export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
               <React.Fragment key={href}>
                 {/* Parent Item */}
                 <ListItem disablePadding>
-                  <Link
-                    href={href}
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                      width: "100%",
-                    }}
-                  >
+                  {href ? (
+                    <Link
+                      href={href}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                        width: "100%",
+                      }}
+                    >
+                      <ListItemButton
+                        onClick={handleClose}
+                        sx={{
+                          px: 3,
+                          py: 1.2,
+                          color: isActive || isChildActive ? "#fff" : "#cbd5e1",
+                          backgroundColor:
+                            isActive || isChildActive
+                              ? "#1e293b"
+                              : "transparent",
+                          "&:hover": {
+                            backgroundColor: "#1e293b",
+                            color: "#fff",
+                          },
+                        }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            color:
+                              isActive || isChildActive ? "#38bdf8" : "#94a3b8",
+                            minWidth: "36px",
+                          }}
+                        >
+                          {icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={text}
+                          primaryTypographyProps={{
+                            fontSize: 15,
+                            fontWeight:
+                              isActive || isChildActive ? "bold" : "normal",
+                          }}
+                        />
+                      </ListItemButton>
+                    </Link>
+                  ) : (
                     <ListItemButton
-                    onClick={handleClose}
+                      onClick={action}
                       sx={{
                         px: 3,
                         py: 1.2,
@@ -158,7 +194,7 @@ export default function ConsumerSidebarDrawer({ children , open, handleClose}) {
                         }}
                       />
                     </ListItemButton>
-                  </Link>
+                  )}
                 </ListItem>
               </React.Fragment>
             );

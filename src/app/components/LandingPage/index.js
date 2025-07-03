@@ -41,7 +41,7 @@ export default function LandingPage() {
   });
 
   return (
-    <main>
+    // <main>
       <Box>
         {/* Hero Section */}
         <Box
@@ -178,6 +178,6 @@ export default function LandingPage() {
           </Box>
         </Container>
       </Box>
-    </main>
+    // </main>
   );
 }

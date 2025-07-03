@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -30,16 +30,17 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-import { dummyProducts } from "@/data/admin-dummy-data/products-data";
+// import { dummyProducts } from "@/data/admin-dummy-data/products-data";
 import { DeviceTabletCameraIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
 function Products() {
+  const [products,setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
 
-  const paginatedProducts = dummyProducts.slice(
+  const paginatedProducts = products.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
@@ -47,6 +48,24 @@ function Products() {
   const handlePageChange = (event, value) => {
     setPage(value);
   };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/admin/products");
+        const result = await res.json();
+        if (result.success) {
+          setProducts(result.data);
+          console.log("products : ", result.data); // array of products
+        } else {
+          console.log("failed to fetch data");
+        }
+      } catch (error) {
+        console.log("error : ", error.message);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <>
@@ -164,6 +183,7 @@ function Products() {
                 <TableCell>Collection</TableCell>
                 <TableCell>Stock</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
@@ -196,6 +216,7 @@ function Products() {
                   <TableCell>{product.collection}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.status}</TableCell>
                   <TableCell>
                     {dayjs(product.createdAt).format("MMM D, YYYY")}
                   </TableCell>
@@ -218,7 +239,7 @@ function Products() {
         {/* <Divider sx={{m:5}} /> */}
         <Box m={3} display="flex" justifyContent="center">
           <Pagination
-            count={Math.ceil(dummyProducts.length / rowsPerPage)}
+            count={Math.ceil(products.length / rowsPerPage)}
             page={page}
             rowsperpage={rowsPerPage}
             onChange={handlePageChange}
