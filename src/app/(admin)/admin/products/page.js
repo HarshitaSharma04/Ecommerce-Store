@@ -30,12 +30,11 @@ import {
 } from "@mui/icons-material";
 
 import dayjs from "dayjs";
-// import { dummyProducts } from "@/data/admin-dummy-data/products-data";
-import { DeviceTabletCameraIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import { orange } from "@mui/material/colors";
 
 function Products() {
-  const [products,setProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
@@ -54,9 +53,10 @@ function Products() {
       try {
         const res = await fetch("/api/admin/products");
         const result = await res.json();
+        console.log("result : ", result)
         if (result.success) {
           setProducts(result.data);
-          console.log("products : ", result.data); // array of products
+          console.log("products : ", result.data);
         } else {
           console.log("failed to fetch data");
         }
@@ -212,11 +212,34 @@ function Products() {
                     </Stack>
                   </TableCell>
                   <TableCell>{product.sku}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.collection}</TableCell>
+                  <TableCell>{product.category?.name}</TableCell>
+                  <TableCell>{product.collection?.name}</TableCell>
                   <TableCell>{product.stock}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.status}</TableCell>
+                  <TableCell>${product.price}</TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "inline-block",
+                        px: 1.5,
+                        py: 0.5,
+                        color: "#fff",
+                        backgroundColor:
+                          product.status === "inactive"
+                            ? "red"
+                            : product.status === "active"
+                            ? "green"
+                            : product.status === "draft"
+                            ? "orange"
+                            : "inherit",
+                        borderRadius: "8px",
+                        fontWeight: "bold",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {product.status}
+                    </Box>
+                  </TableCell>
+
                   <TableCell>
                     {dayjs(product.createdAt).format("MMM D, YYYY")}
                   </TableCell>

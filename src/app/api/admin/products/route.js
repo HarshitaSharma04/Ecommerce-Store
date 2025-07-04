@@ -1,50 +1,71 @@
-import { dummyProducts } from "@/data/admin-dummy-data/products-data";
+import { NextResponse } from "next/server";
+import prisma from "@/db/prisma-connect";
+import { v4 as uuidv4 } from "uuid";
 
-let products = [...dummyProducts];
-
-// fetch all products
+// ─────────────── GET ALL PRODUCTS ───────────────
 export async function GET() {
   try {
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Products fetched successfully",
-        data: products,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+        user: true,
+      },
+    });
+    console.log("product data is :", products);
+    return NextResponse.json({
+      success: true,
+      data: products,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ success: false, message: "Failed to fetch data" }),
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
       { status: 500 }
     );
   }
 }
 
-// create products
-export async function POST(req) {
+// ─────────────── CREATE PRODUCT ───────────────
+export async function POST(request) {
   try {
-    const body = await req.json();
-    const newProduct = {};
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Products created successfully",
-        data: newProduct,
-      })
-    );
+    const body = await request.json();
+
+    const {
+      sku,
+      slug,
+      name,
+      description,
+      variant,
+      image,
+      status = "active",
+      categoryId,
+      merchantId,
+    } = body;
+
+    const updatedVariants = variant.map((v) => ({
+      ...v,
+      variantId: uuidv4(), // Assign unique ID
+    }));
+
+    const newProduct = await prisma.product.create({
+      data: {
+        sku,
+        slug,
+        name,
+        description,
+        variant: updatedVariants,
+        image,
+        status,
+        categoryId,
+        merchantId,
+      },
+    });
+
+    return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ success: false, message: "Failed to create product" }),
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to create product" },
       { status: 500 }
     );
   }
 }
-
-// // update products
-// export async function PUT(req) {
-//   try {
-//   } catch (error) {
-
-//   }
-// }

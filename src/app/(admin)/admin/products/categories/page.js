@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -34,11 +34,12 @@ import { DummyCategories } from "@/data/admin-dummy-data/categories-data";
 import { useRouter } from "next/navigation";
 
 function Categories() {
+  const [category, setCategory] = useState([])
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const router = useRouter();
 
-  const paginatedCategories = DummyCategories.slice(
+  const paginatedCategories = category.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
@@ -46,6 +47,25 @@ function Categories() {
   const handlePageChange = (event, value) => {
     setPage(value);
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/admin/categories");
+        const result = await res.json();
+        console.log("result : ", result)
+        if (result.success) {
+          setCategory(result.data)
+          console.log("categories : ", result.data);
+        } else {
+          console.log("failed to fetch category");
+        }
+      } catch (error) {
+        console.log("error : ", error.message);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <>

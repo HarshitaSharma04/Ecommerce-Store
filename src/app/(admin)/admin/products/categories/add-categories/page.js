@@ -11,10 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 function AddCategories() {
+  const router = useRouter();
   const [categoriesData, setCategoriesData] = useState({
     categoryName: "",
+    slug: "",
     description: "",
     brand: "",
     stock: "",
@@ -53,31 +56,63 @@ function AddCategories() {
     }));
   };
 
-    const validate = () => {
-      const newErrors = {};
-      if (!categoriesData.categoryName) {
-        newErrors.CategoryName = "Product name is required";
-      } else if (categoriesData.categoryName.length < 3) {
-        newErrors.CategoryName = "Minimum 3 characters";
-      } else if (categoriesData.categoryName.length > 15) {
-        newErrors.CategoryName = "Maximum 15 characters";
-      }
-      if (!categoriesData.description) newErrors.description = "Required";
-      if (!categoriesData.brand) newErrors.brand = "Required";
-      if (!categoriesData.category) newErrors.category = "Required";
-      if (!categoriesData.stock) newErrors.stock = "Required";
-      else if (isNaN(categoriesData.stock)) newErrors.stock = "Must be a number";
-      if (!categoriesData.price) newErrors.price = "Required";
-      else if (isNaN(categoriesData.price)) newErrors.price = "Must be a number";
+  const validate = () => {
+    const newErrors = {};
+    if (!categoriesData.categoryName) {
+      newErrors.CategoryName = "Product name is required";
+    } else if (categoriesData.categoryName.length < 3) {
+      newErrors.CategoryName = "Minimum 3 characters";
+    } else if (categoriesData.categoryName.length > 15) {
+      newErrors.CategoryName = "Maximum 15 characters";
+    }
+    if (!categoriesData.description) newErrors.description = "Required";
+    if (!categoriesData.brand) newErrors.brand = "Required";
+    if (!categoriesData.category) newErrors.category = "Required";
+    if (!categoriesData.stock) newErrors.stock = "Required";
+    else if (isNaN(categoriesData.stock)) newErrors.stock = "Must be a number";
+    if (!categoriesData.price) newErrors.price = "Required";
+    else if (isNaN(categoriesData.price)) newErrors.price = "Must be a number";
 
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    console.log("sdhbcksjd");
     e.preventDefault();
-    if (validate()) {
-      console.log("✅ category data Submitted:", categoriesData);
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: categoriesData.categoryName,
+          description: categoriesData.description,
+          slug: categoriesData.slug,
+          image: categoriesData.image,
+          brand: categoriesData.brand,
+          stock: categoriesData.stock,
+          status: categoriesData.status,
+          price: categoriesData.price,
+        }),
+      });
+      const result = await res.json();
+
+      if (res.ok) {
+        console.log("✅ Newly created product: ", result.data);
+        setCategoriesData({
+          categoryName: "",
+          description: "",
+          brand: "",
+          stock: "",
+          price: "",
+          status: "",
+        });
+        router.push("/admin/categories");
+      } else {
+        console.log("❌ Failed:", result.error);
+      }
+    } catch (error) {
+      console.log("error : ", error.message);
     }
   };
 
@@ -177,6 +212,13 @@ function AddCategories() {
                   onChange={handleChange}
                   error={!!errors.brand}
                   helperText={errors.brand}
+                />
+                <TextField
+                  fullWidth
+                  label="Slug"
+                  name="slug"
+                  value={categoriesData.slug}
+                  onChange={handleChange}
                 />
               </Box>
 
@@ -282,6 +324,25 @@ function AddCategories() {
                 error={!!errors.price}
                 helperText={errors.price}
               /> */}
+
+              <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
+
+              <Box textAlign="right">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    background: "#6366f1",
+                    fontWeight: "bold",
+                    px: 4,
+                    py: 1.3,
+                    borderRadius: 2,
+                    ":hover": { background: "#4f46e5" },
+                  }}
+                >
+                  Create Product
+                </Button>
+              </Box>
             </Box>
 
             {/* <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
@@ -316,24 +377,6 @@ function AddCategories() {
                 </TextField>
               </Box> */}
 
-            <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-
-            <Box textAlign="right">
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  background: "#6366f1",
-                  fontWeight: "bold",
-                  px: 4,
-                  py: 1.3,
-                  borderRadius: 2,
-                  ":hover": { background: "#4f46e5" },
-                }}
-              >
-                Create Product
-              </Button>
-            </Box>
             {/* </Box> */}
           </Grid>
         </Grid>

@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 function AddProduct() {
   const [productData, setProductData] = useState({
@@ -20,13 +21,15 @@ function AddProduct() {
     brand: "",
     stock: "",
     price: "",
-    variant: [{ size: "", color: "" }],
+    collection: "",
+    // variant: [{ size: "", color: "" }],
   });
 
   const sizes = ["S", "M", "L", "XL"];
   const colors = ["Red", "Blue", "Black", "White"];
   const categories = ["clothing", "electronics", "home", "sports"];
   const [errors, setErrors] = useState({});
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,9 +62,10 @@ function AddProduct() {
       newErrors.productName = "Product name is required";
     } else if (productData.productName.length < 3) {
       newErrors.productName = "Minimum 3 characters";
-    } else if (productData.productName.length > 15) {
-      newErrors.productName = "Maximum 15 characters";
     }
+    // else if (productData.productName.length > 10) {
+    //   newErrors.productName = "Maximum 15 characters";
+    // }
     if (!productData.description) newErrors.description = "Required";
     if (!productData.brand) newErrors.brand = "Required";
     if (!productData.category) newErrors.category = "Required";
@@ -74,16 +78,47 @@ function AddProduct() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("✅ Product Submitted:", productData);
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: productData.productName,
+          description: productData.description,
+          category: productData.category,
+          brand: productData.brand,
+          stock: productData.stock,
+          price: productData.price,
+          collection: productData.collection,
+        }),
+      });
+      const result = await res.json();
+
+      if (res.ok) {
+        console.log("✅ Newly created product: ", result.data);
+        setProductData({
+          productName: "",
+          description: "",
+          category: "",
+          brand: "",
+          stock: "",
+          price: "",
+          collection: "",
+        });
+        router.push("/admin/products");
+      } else {
+        console.log("❌ Failed:", result.message);
+      }
+    } catch (error) {
+      console.log("error : ", error.message);
     }
   };
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" mb={4} fontSize="30px" >
+      <Typography variant="h4" mb={4} fontSize="30px">
         Add Product
       </Typography>
 
@@ -114,7 +149,7 @@ function AddProduct() {
               <Typography fontWeight={700} fontSize="1.2rem">
                 Product Image
               </Typography>
-              <Typography color="text.secondary" >
+              <Typography color="text.secondary">
                 Preview or upload an image
               </Typography>
 
@@ -178,6 +213,15 @@ function AddProduct() {
                   error={!!errors.brand}
                   helperText={errors.brand}
                 />
+                <TextField
+                  fullWidth
+                  label="Collection"
+                  name="collection"
+                  value={productData.collection}
+                  onChange={handleChange}
+                  error={!!errors.collection}
+                  helperText={errors.collection}
+                />
               </Box>
 
               <TextField
@@ -185,7 +229,7 @@ function AddProduct() {
                 label="Description"
                 name="description"
                 multiline
-                rows={3}
+                rows={2}
                 value={productData.description}
                 onChange={handleChange}
                 error={!!errors.description}
@@ -232,7 +276,7 @@ function AddProduct() {
                 />
               </Box>
 
-              <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+              {/* <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
                 <TextField
                   select
                   fullWidth
@@ -262,7 +306,7 @@ function AddProduct() {
                     </MenuItem>
                   ))}
                 </TextField>
-              </Box>
+              </Box> */}
 
               <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
 

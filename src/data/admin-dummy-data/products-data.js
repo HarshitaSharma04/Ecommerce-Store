@@ -12,6 +12,30 @@ export const dummyProducts = [
     status: "inactive",
     createdAt: "2025-06-01T09:00:00Z",
     updatedAt: "2025-06-01T09:00:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Small",
+        description: "Size Small",
+        price: 489.95,
+        stock: 2,
+        image: "https://plus.unsplash.com/premium_photo-1661313817350-1fa759c43a3b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bGVhdGhlciUyMGphY2tldHxlbnwwfHwwfHx8MA%3D%3D",
+        size: "S",
+        color: "Cognac",
+        material: "Leather"
+      },
+      {
+        variantId: "v2",
+        name: "Medium",
+        description: "Size Medium",
+        price: 489.95,
+        stock: 3,
+        image: "https://images.unsplash.com/photo-1606715791286-6e43e9838f44?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGxlYXRoZXIlMjBqYWNrZXRzfGVufDB8fDB8fHww",
+        size: "M",
+        color: "green",
+        material: "Leather"
+      }
+    ]
   },
   {
     id: "prod_002",
@@ -26,6 +50,19 @@ export const dummyProducts = [
     status: "draft",
     createdAt: "2025-05-25T11:30:00Z",
     updatedAt: "2025-05-25T11:30:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Large",
+        description: "Size Large",
+        price: 39.99,
+        stock: 5,
+        image: "https://images.unsplash.com/photo-1602810318660-d2c46b750f88?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fG1lbnMlMjBzaGlydHxlbnwwfHwwfHx8MA%3D%3D",
+        size: "L",
+        color: "Purple",
+        material: "Cotton"
+      }
+    ]
   },
   {
     id: "prod_003",
@@ -40,6 +77,19 @@ export const dummyProducts = [
     status: "active",
     createdAt: "2025-06-05T14:15:00Z",
     updatedAt: "2025-06-05T14:15:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Black",
+        description: "Black Color",
+        price: 59.99,
+        stock: 10,
+        image: "https://images.unsplash.com/photo-1589256469067-ea99122bbdc4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Ymx1ZXRvb3RoJTIwc3BlYWtlcnxlbnwwfHwwfHx8MA%3D%3D",
+        size: "Standard",
+        color: "Black",
+        material: "Plastic"
+      }
+    ]
   },
   {
     id: "prod_004",
@@ -54,6 +104,30 @@ export const dummyProducts = [
     status: "active",
     createdAt: "2025-06-10T16:45:00Z",
     updatedAt: "2025-06-10T16:45:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Black Wired",
+        description: "Wired",
+        price: 49.99,
+        stock: 15,
+        image: "/mouse.png",
+        size: "Medium",
+        color: "Black",
+        material: "Plastic"
+      },
+      {
+        variantId: "v2",
+        name: "White Wireless",
+        description: "Wireless",
+        price: 59.99,
+        stock: 15,
+        image: "https://images.unsplash.com/photo-1705332112231-4dff35a9587c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2hpdGUlMjBtb3VzZXxlbnwwfHwwfHx8MA%3D%3D",
+        size: "Medium",
+        color: "White",
+        material: "Plastic"
+      }
+    ]
   },
   {
     id: "prod_005",
@@ -68,6 +142,30 @@ export const dummyProducts = [
     status: "inactive",
     createdAt: "2025-06-12T10:20:00Z",
     updatedAt: "2025-06-12T10:20:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Size 8",
+        description: "Men's size 8",
+        price: 79.99,
+        stock: 8,
+        image: "/shoes.jpg",
+        size: "8",
+        color: "Blue",
+        material: "Mesh"
+      },
+      {
+        variantId: "v2",
+        name: "Size 9",
+        description: "Men's size 9",
+        price: 79.99,
+        stock: 10,
+        image: "/shoes.jpg",
+        size: "9",
+        color: "Blue",
+        material: "Mesh"
+      }
+    ]
   },
   {
     id: "prod_006",
@@ -82,6 +180,19 @@ export const dummyProducts = [
     status: "active",
     createdAt: "2025-06-15T08:50:00Z",
     updatedAt: "2025-06-15T08:50:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Brown",
+        description: "Classic brown leather",
+        price: 149.99,
+        stock: 8,
+        image: "/handbag.jpg",
+        size: "One Size",
+        color: "Brown",
+        material: "Leather"
+      }
+    ]
   },
   {
     id: "prod_007",
@@ -96,6 +207,30 @@ export const dummyProducts = [
     status: "draft",
     createdAt: "2025-06-18T13:10:00Z",
     updatedAt: "2025-06-18T13:10:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Black",
+        description: "Silicone strap",
+        price: 199.99,
+        stock: 15,
+        image: "/smartwatches.jpg",
+        size: "Standard",
+        color: "Black",
+        material: "Silicone"
+      },
+      {
+        variantId: "v2",
+        name: "Silver",
+        description: "Metal strap",
+        price: 219.99,
+        stock: 10,
+        image: "/smartwatches.jpg",
+        size: "Standard",
+        color: "Silver",
+        material: "Metal"
+      }
+    ]
   },
   {
     id: "prod_008",
@@ -110,6 +245,30 @@ export const dummyProducts = [
     status: "active",
     createdAt: "2025-06-20T15:30:00Z",
     updatedAt: "2025-06-20T15:30:00Z",
+    variant: [
+      {
+        variantId: "v1",
+        name: "Standard",
+        description: "60Hz refresh rate",
+        price: 299.99,
+        stock: 5,
+        image: "/monitor.png",
+        size: "27in",
+        color: "Black",
+        material: "Plastic"
+      },
+      {
+        variantId: "v2",
+        name: "Pro",
+        description: "144Hz refresh rate",
+        price: 349.99,
+        stock: 5,
+        image: "/monitor.png",
+        size: "27in",
+        color: "Black",
+        material: "Aluminum"
+      }
+    ]
   },
   {
     id: "prod_009",
@@ -124,5 +283,29 @@ export const dummyProducts = [
     status: "draft",
     createdAt: "2025-06-22T09:40:00Z",
     updatedAt: "2025-06-22T09:40:00Z",
-  },
+    variant: [
+      {
+        variantId: "v1",
+        name: "500ml",
+        description: "500ml size",
+        price: 24.99,
+        stock: 25,
+        image: "/bottle.jpg",
+        size: "500ml",
+        color: "Silver",
+        material: "Stainless Steel"
+      },
+      {
+        variantId: "v2",
+        name: "1L",
+        description: "1 liter size",
+        price: 29.99,
+        stock: 15,
+        image: "/bottle.jpg",
+        size: "1L",
+        color: "Silver",
+        material: "Stainless Steel"
+      }
+    ]
+  }
 ];
