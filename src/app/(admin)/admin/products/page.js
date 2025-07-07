@@ -53,7 +53,7 @@ function Products() {
       try {
         const res = await fetch("/api/admin/products");
         const result = await res.json();
-        console.log("result : ", result)
+        console.log("result : ", result);
         if (result.success) {
           setProducts(result.data);
           console.log("products : ", result.data);
@@ -66,6 +66,13 @@ function Products() {
     };
     fetchProducts();
   }, []);
+
+  const stockCalculate = (variants) => {
+    return variants.reduce(
+      (sum, v) => sum + (typeof v.stock === "number" ? v.stock : 0),
+      0
+    );
+  };
 
   return (
     <>
@@ -213,9 +220,9 @@ function Products() {
                   </TableCell>
                   <TableCell>{product.sku}</TableCell>
                   <TableCell>{product.category?.name}</TableCell>
-                  <TableCell>{product.collection?.name}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell>${product.price}</TableCell>
+                  <TableCell>All</TableCell>
+                  <TableCell>{ stockCalculate(product.variant) ?? "N/A"}</TableCell>
+                  <TableCell>${product.variant[0].price}</TableCell>
                   <TableCell>
                     <Box
                       sx={{

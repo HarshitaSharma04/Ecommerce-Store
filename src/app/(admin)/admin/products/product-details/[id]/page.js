@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ArrowBack } from "@mui/icons-material";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 
 export default function ProductDetailPage() {
   const router = useRouter();
@@ -32,17 +32,25 @@ export default function ProductDetailPage() {
         const result = await res.json();
         if (result.success) {
           setProduct(result.data);
+          console.log("result of product detail is: ", result);
         } else {
           console.error("Error:", result.message);
         }
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
-        setTimeout(() => setLoading(false), 1000); 
+        setTimeout(() => setLoading(false), 1000);
       }
     };
     fetchProductById(id);
   }, [id]);
+
+  const stockCalculate = (variants) => {
+    return variants.reduce(
+      (sum, v) => sum + (typeof v.stock === "number" ? v.stock : 0),
+      0
+    );
+  };
 
   if (loading) {
     return (
@@ -83,7 +91,13 @@ export default function ProductDetailPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box mb={4} display="flex" alignItems="center" justifyContent="space-between" flex-wrap="wrap">
+      <Box
+        mb={4}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        flex-wrap="wrap"
+      >
         <Button
           variant="contained"
           color="primary"
@@ -125,8 +139,9 @@ export default function ProductDetailPage() {
                 maxHeight: 400,
                 objectFit: "contain",
               }}
-              image={product.image}
+              image={product.image || "/product_default_image.jpg"}
               alt={product.name}
+
             />
           </Grid>
 
@@ -148,12 +163,12 @@ export default function ProductDetailPage() {
 
               <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                 <Chip
-                  label={`₹${product.price}`}
+                  label={`₹${product.variant[0].price}`}
                   color="success"
                   size="medium"
                 />
                 <Chip
-                  label={`Stock: ${product.stock}`}
+                  label={`Stock: ${stockCalculate(product.variant)}`}
                   color={product.stock > 0 ? "warning" : "error"}
                   size="medium"
                 />
@@ -167,7 +182,7 @@ export default function ProductDetailPage() {
               <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                 {product.category && (
                   <Chip
-                    label={`Category: ${product.category}`}
+                    label={`Category: ${product.category?.name || "N/A"}`}
                     variant="outlined"
                     size="small"
                   />
@@ -198,7 +213,7 @@ export default function ProductDetailPage() {
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                       <Box
                         component="img"
-                        src={variant.image}
+                        src={variant.image || "/product_default_image.jpg"}
                         alt={variant.name}
                         sx={{
                           width: 120,
@@ -216,19 +231,17 @@ export default function ProductDetailPage() {
                         >
                           {variant.description}
                         </Typography>
-                        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                        {/* <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                           <Chip label={`Size: ${variant.size}`} size="small" />
                           <Chip
                             label={`Color: ${variant.color}`}
                             size="small"
                           />
-                          {variant.material && (
-                            <Chip
-                              label={`Material: ${variant.material}`}
-                              size="small"
-                            />
-                          )}
-                        </Stack>
+                          <Chip
+                            label={`Material: ${variant.material}`}
+                            size="small"
+                          />
+                        </Stack> */}
                         <Stack direction="row" spacing={1}>
                           <Chip
                             label={`₹${variant.price}`}

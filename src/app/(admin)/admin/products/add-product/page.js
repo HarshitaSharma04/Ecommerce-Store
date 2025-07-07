@@ -1,17 +1,25 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Avatar,
   Box,
+  boxClasses,
   Button,
+  Chip,
   Divider,
   Grid,
+  IconButton,
   MenuItem,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { ArrowBack } from "@mui/icons-material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ClearIcon from "@mui/icons-material/Clear";
+import { motion, AnimatePresence } from "framer-motion";
+import { Form } from "react-hook-form";
 
 function AddProduct() {
   const [productData, setProductData] = useState({
@@ -20,14 +28,34 @@ function AddProduct() {
     category: "",
     brand: "",
     stock: "",
-    price: "",
-    collection: "",
-    // variant: [{ size: "", color: "" }],
   });
 
-  const sizes = ["S", "M", "L", "XL"];
-  const colors = ["Red", "Blue", "Black", "White"];
-  const categories = ["clothing", "electronics", "home", "sports"];
+  const [variants, setVariants] = useState([
+    {
+      variantName: "",
+      description: "",
+      stock: "",
+      price: "",
+    },
+  ]);
+
+  const handleRemoveVariant = (indexToRemove) => {
+    // if (variants.length === 1) return; // prevent deleting the last one
+    const updatedVariants = variants.filter((_, i) => i !== indexToRemove);
+    setVariants(updatedVariants);
+  };
+
+  const handleAddVariantBox = () => {
+    setVariants([
+      ...variants,
+      {
+        variantName: "",
+        description: "",
+        stock: "",
+        price: "",
+      },
+    ]);
+  };
   const [errors, setErrors] = useState({});
   const router = useRouter();
 
@@ -43,18 +71,34 @@ function AddProduct() {
     }));
   };
 
-  const handleVariantChange = (e) => {
+  const handleVariantChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedVariant = [...productData.variant];
-    updatedVariant[0] = {
-      ...updatedVariant[0],
-      [name]: value,
-    };
-    setProductData((prev) => ({
-      ...prev,
-      variant: updatedVariant,
-    }));
+    setVariants((prevVariants) => {
+      const updatedVariants = [...prevVariants];
+      updatedVariants[index] = {
+        ...updatedVariants[index],
+        [name]: value,
+      };
+      return updatedVariants;
+    });
   };
+
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/admin/categories");
+        const result = await res.json();
+        console.log("result of categories : ", result);
+        if (result.success) {
+          setCategories(result.data);
+        }
+      } catch (error) {
+        console.log("error fetching categories : ", error.message);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -79,25 +123,39 @@ function AddProduct() {
   };
 
   const handleSubmit = async (e) => {
+    console.log("jdbcjd");
     e.preventDefault();
     try {
+      // const categoryMap = {
+      //   Apparel: "6867cabccf812b31112e9688",
+      //   Electronics: "6867cabccf812b31112e9689",
+      //   Footwear: "6867cabccf812b31112e968a",
+      //   Accessories: "6867cabccf812b31112e968b",
+      //   Computers: "6867cabccf812b31112e968c",
+      //   "Home & Kitchen": "6867cabccf812b31112e968d",
+      // };
       const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: productData.productName,
           description: productData.description,
-          category: productData.category,
+          categoryId: productData.category.id,
           brand: productData.brand,
+          merchantId: "68661e7da8804fafee40888b",
           stock: productData.stock,
-          price: productData.price,
-          collection: productData.collection,
+          variant: variants.map((v) => ({
+            name: v.variantName,
+            description: v.description,
+            stock: v.stock,
+            price: v.price,
+          })),
         }),
       });
       const result = await res.json();
-
+      console.log("result : ", result);
       if (res.ok) {
-        console.log("✅ Newly created product: ", result.data);
+        console.log("✅ Newly created product: ", result);
         setProductData({
           productName: "",
           description: "",
@@ -106,8 +164,17 @@ function AddProduct() {
           stock: "",
           price: "",
           collection: "",
+          variant: "variants",
         });
-        router.push("/admin/products");
+        setVariants([
+          {
+            variantName: "",
+            description: "",
+            stock: "",
+            price: "",
+          },
+        ]);
+        // router.push("/admin/products");
       } else {
         console.log("❌ Failed:", result.message);
       }
@@ -118,6 +185,28 @@ function AddProduct() {
 
   return (
     <Box sx={{ p: 4 }}>
+      {/* add variant and back button  */}
+      <Box
+        mb={4}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        flex-wrap="wrap"
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<ArrowBack />}
+          sx={{ textTransform: "none", borderRadius: "8px", p: "10px 20px" }}
+          onClick={() => {
+            router.push("/admin/products");
+          }}
+        >
+          Back
+        </Button>
+      </Box>
+
+      {/* add product text */}
       <Typography variant="h4" mb={4} fontSize="30px">
         Add Product
       </Typography>
@@ -213,15 +302,6 @@ function AddProduct() {
                   error={!!errors.brand}
                   helperText={errors.brand}
                 />
-                <TextField
-                  fullWidth
-                  label="Collection"
-                  name="collection"
-                  value={productData.collection}
-                  onChange={handleChange}
-                  error={!!errors.collection}
-                  helperText={errors.collection}
-                />
               </Box>
 
               <TextField
@@ -250,84 +330,154 @@ function AddProduct() {
                 >
                   {categories.map((cat) => (
                     <MenuItem key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      {cat.name}
                     </MenuItem>
                   ))}
                 </TextField>
 
                 <TextField
                   fullWidth
-                  label="Stock"
-                  name="stock"
-                  value={productData.stock}
+                  label="Collection"
+                  name="collection"
+                  value={productData.collection}
                   onChange={handleChange}
-                  error={!!errors.stock}
-                  helperText={errors.stock}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Price"
-                  name="price"
-                  value={productData.price}
-                  onChange={handleChange}
-                  error={!!errors.price}
-                  helperText={errors.price}
+                  error={!!errors.collection}
+                  helperText={errors.collection}
                 />
               </Box>
-
-              {/* <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Size"
-                  name="size"
-                  value={productData.variant[0].size}
-                  onChange={handleVariantChange}
-                >
-                  {sizes.map((size) => (
-                    <MenuItem key={size} value={size}>
-                      {size}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Color"
-                  name="color"
-                  value={productData.variant[0].color}
-                  onChange={handleVariantChange}
-                >
-                  {colors.map((color) => (
-                    <MenuItem key={color} value={color}>
-                      {color}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Box> */}
 
               <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-
-              <Box textAlign="right">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    background: "#6366f1",
-                    fontWeight: "bold",
-                    px: 4,
-                    py: 1.3,
-                    borderRadius: 2,
-                    ":hover": { background: "#4f46e5" },
-                  }}
-                >
-                  Create Product
-                </Button>
-              </Box>
             </Box>
           </Grid>
+
+          {/* add variant box */}
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              mt: 4,
+              p: 3,
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              backgroundColor: "#fafafa",
+              width: "100%",
+            }}
+          >
+            <Box
+              mb={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              flexWrap="wrap"
+            >
+              <Typography variant="h6" gutterBottom>
+                Add Variant
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={handleAddVariantBox}
+                startIcon={<AddCircleIcon />}
+                sx={{
+                  textTransform: "none",
+                  // backgroundColor: "#4caf50",
+                  // ":hover": { backgroundColor: "#388e3c" },
+                }}
+              >
+                Add More Variant
+              </Button>
+            </Box>
+
+            <AnimatePresence>
+              {variants.map((variant, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Stack spacing={2} mb={4} component={Box}>
+                    {index !== 0 && (
+                      <Box sx={{ textAlign: "end" }}>
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleRemoveVariant(index)}
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </Box>
+                    )}
+                    <TextField
+                      fullWidth
+                      label="Variant Name"
+                      name="variantName"
+                      value={variant.variantName}
+                      onChange={(e) => handleVariantChange(index, e)}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Variant Description"
+                      name="description"
+                      value={variant.description}
+                      onChange={(e) => handleVariantChange(index, e)}
+                    />
+                    <Stack direction="row" spacing={2}>
+                      <TextField
+                        fullWidth
+                        label="Stock"
+                        name="stock"
+                        type="number"
+                        value={variant.stock}
+                        onChange={(e) => handleVariantChange(index, e)}
+                      />
+                      <TextField
+                        fullWidth
+                        label="Price (₹)"
+                        name="price"
+                        value={variant.price}
+                        onChange={(e) => handleVariantChange(index, e)}
+                      />
+                    </Stack>
+                  </Stack>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              startIcon={<AddCircleIcon />}
+              sx={{
+                textTransform: "none",
+                borderRadius: "8px",
+                p: "10px 20px",
+              }}
+              // onClick={() => {
+              //   router.push("/admin/products");
+              // }}
+            >
+              Add Product
+            </Button>
+          </Box>
+
+          {/* <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            startIcon={<AddCircleIcon />}
+            sx={{
+              textTransform: "none",
+              borderRadius: "8px",
+              p: "10px 20px",
+            }}
+            // onClick={() => {
+            //   router.push("/admin/products");
+            // }}
+          >
+            Add Product
+          </Button> */}
         </Grid>
       </Box>
     </Box>

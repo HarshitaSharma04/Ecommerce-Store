@@ -1,19 +1,27 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/db/prisma-connect';
+import { NextResponse } from "next/server";
+import prisma from "@/db/prisma-connect";
 
 // ────── GET PRODUCT BY ID ──────
-export async function GET(_, { params }) {
-  const { id } = params;
+export async function GET(req, { params }) {
+  const { id } = await params;
   try {
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { category: true, user: true },
+      include: { category: true, user: true,  },
     });
-
-    if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    return NextResponse.json(product);
+    console.log("product detail : ", product);
+    console.log("full variant[0] :", product.variant[0]);
+    if (!product)
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    return NextResponse.json({
+      success: true,
+      data: product,
+    });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 }
+    );
   }
 }
 
@@ -26,10 +34,9 @@ export async function PUT(request, { params }) {
       where: { id },
       data: body,
     });
-
     return NextResponse.json(updated);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }
 
@@ -38,8 +45,10 @@ export async function DELETE(_, { params }) {
   const { id } = params;
   try {
     await prisma.product.delete({ where: { id } });
-    return NextResponse.json({ message: 'Deleted successfully' });
+    return NextResponse.json({ message: "Deleted successfully" });
   } catch (error) {
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }
+
+
