@@ -19,15 +19,19 @@ import { ArrowBack } from "@mui/icons-material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ClearIcon from "@mui/icons-material/Clear";
 import { motion, AnimatePresence } from "framer-motion";
-import { Form } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
+import toast from "react-hot-toast";
 
 function AddProduct() {
+  const [errors, setErrors] = useState({});
+  const router = useRouter();
+  const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
   const [productData, setProductData] = useState({
     productName: "",
     description: "",
     category: "",
-    brand: "",
-    stock: "",
   });
 
   const [variants, setVariants] = useState([
@@ -56,8 +60,6 @@ function AddProduct() {
       },
     ]);
   };
-  const [errors, setErrors] = useState({});
-  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -100,6 +102,7 @@ function AddProduct() {
     fetchCategories();
   }, []);
 
+  // validation
   const validate = () => {
     const newErrors = {};
     if (!productData.productName) {
@@ -107,16 +110,28 @@ function AddProduct() {
     } else if (productData.productName.length < 3) {
       newErrors.productName = "Minimum 3 characters";
     }
-    // else if (productData.productName.length > 10) {
-    //   newErrors.productName = "Maximum 15 characters";
-    // }
     if (!productData.description) newErrors.description = "Required";
-    if (!productData.brand) newErrors.brand = "Required";
     if (!productData.category) newErrors.category = "Required";
-    if (!productData.stock) newErrors.stock = "Required";
-    else if (isNaN(productData.stock)) newErrors.stock = "Must be a number";
-    if (!productData.price) newErrors.price = "Required";
-    else if (isNaN(productData.price)) newErrors.price = "Must be a number";
+
+    // Validate variants
+    variants.forEach((variant, index) => {
+      if (!variant.variantName) {
+        newErrors[`variantName_${index}`] = "Variant name is required";
+      }
+      if (!variant.description) {
+        newErrors[`description_${index}`] = "Variant description is required";
+      }
+      if (!variant.stock) {
+        newErrors[`stock_${index}`] = "Stock is required";
+      } else if (isNaN(variant.stock)) {
+        newErrors[`stock_${index}`] = "Stock must be a number";
+      }
+      if (!variant.price) {
+        newErrors[`price_${index}`] = "Price is required";
+      } else if (isNaN(variant.price)) {
+        newErrors[`price_${index}`] = "Price must be a number";
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -125,44 +140,42 @@ function AddProduct() {
   const handleSubmit = async (e) => {
     console.log("jdbcjd");
     e.preventDefault();
+    if (!validate()) {
+      console.log("Validation failed:", errors);
+      return;
+    }
     try {
-      // const categoryMap = {
-      //   Apparel: "6867cabccf812b31112e9688",
-      //   Electronics: "6867cabccf812b31112e9689",
-      //   Footwear: "6867cabccf812b31112e968a",
-      //   Accessories: "6867cabccf812b31112e968b",
-      //   Computers: "6867cabccf812b31112e968c",
-      //   "Home & Kitchen": "6867cabccf812b31112e968d",
-      // };
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: productData.productName,
-          description: productData.description,
-          categoryId: productData.category.id,
-          brand: productData.brand,
-          merchantId: "68661e7da8804fafee40888b",
-          stock: productData.stock,
-          variant: variants.map((v) => ({
+      const formData = new FormData();
+      formData.append("name", productData.productName);
+      formData.append("description", productData.description);
+      formData.append("categoryId", productData.category.id);
+      formData.append("image", imageUrl);
+      formData.append("merchantId", "68661e7da8804fafee40888b");
+      formData.append(
+        "variant",
+        JSON.stringify(
+          variants.map((v) => ({
+            variantId: v.variantId || uuidv4(),
             name: v.variantName,
             description: v.description,
-            stock: v.stock,
-            price: v.price,
-          })),
-        }),
+            stock: parseInt(v.stock),
+            price: parseFloat(v.price),
+            image: v.image || imageUrl,
+          }))
+        )
+      );
+      console.log("from data to be subbmitted : ", formData);
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        body: formData,
       });
       const result = await res.json();
-      console.log("result : ", result);
       if (res.ok) {
         console.log("✅ Newly created product: ", result);
         setProductData({
           productName: "",
           description: "",
           category: "",
-          brand: "",
-          stock: "",
-          price: "",
           collection: "",
           variant: "variants",
         });
@@ -174,12 +187,48 @@ function AddProduct() {
             price: "",
           },
         ]);
-        // router.push("/admin/products");
+        toast.success("Product Created Successfully", { duration: 3000 });
+        setTimeout(() => {
+          router.push("/admin/products");
+        }, 4000);
       } else {
         console.log("❌ Failed:", result.message);
+        toast.error("❌ Failed to Create a Product");
       }
     } catch (error) {
       console.log("error : ", error.message);
+    }
+  };
+
+  // handle image
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const newImageUrl = URL.createObjectURL(file);
+      setImageUrl(newImageUrl);
+
+      // Upload to Cloudinary immediately
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        console.log("Cloudinary Upload URL:", data.url);
+        if (res.ok && data?.url) {
+          setImageUrl(data.url); // ✅ Replace local blob with Cloudinary URL
+          toast.success("Image uploaded successfully!");
+        } else {
+          toast.error(data?.error || "Image upload failed");
+        }
+      } catch (error) {
+        console.log("Upload error:", error.message);
+        toast.error("Upload failed. Try again.");
+      }
     }
   };
 
@@ -222,42 +271,70 @@ function AddProduct() {
           <Grid item sx={{ width: "30%" }}>
             <Stack
               spacing={2}
+              alignItems="center"
               sx={{
-                alignItems: "center",
                 border: "1px solid #e2e8f0",
-                borderRadius: "10px",
+                borderRadius: 2,
                 p: 3,
-                backgroundColor: "#fff",
+                bgcolor: "#fff",
+                // boxShadow: 1,
               }}
             >
-              <Avatar
-                variant="circular"
-                src="/shirt.jpg"
-                sx={{ width: 120, height: 120, mb: 2 }}
+              {/* Image Preview */}
+              <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+                <Avatar
+                  variant="rounded"
+                  src={imageUrl}
+                  alt="Product Image"
+                  sx={{
+                    width: 140,
+                    height: 140,
+                    mb: 1,
+                    border: "2px solid #e0e0e0",
+                    transition: "0.3s",
+                    "&:hover": { opacity: 0.8 },
+                  }}
+                />
+              </label>
+
+              <input
+                type="file"
+                id="upload-image"
+                hidden
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                accept="image/*"
               />
-              <Typography fontWeight={700} fontSize="1.2rem">
-                Product Image
+
+              {/* Product Name */}
+              <Typography fontWeight={600} fontSize="1.2rem" textAlign="center">
+                {productData.productName || "Product Image"}
               </Typography>
-              <Typography color="text.secondary">
-                Preview or upload an image
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+              >
+                Click image or use buttons to upload
               </Typography>
 
               <Divider
                 sx={{
                   width: "100%",
-                  mx: "auto",
-                  my: 3,
+                  my: 2,
                   borderColor: "#e2e8f0",
                   borderBottomWidth: "2px",
                 }}
               />
 
+              {/* Action Buttons */}
               <Button
-                variant="text"
+                variant="contained"
+                onClick={() => fileInputRef.current?.click()}
+                // disabled={selectedFile}
                 sx={{
-                  color: "#6366f1",
-                  fontWeight: 600,
                   textTransform: "none",
+                  fontWeight: 500,
                 }}
               >
                 Upload Image
@@ -283,26 +360,15 @@ function AddProduct() {
 
               <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
 
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  fullWidth
-                  label="Product Name"
-                  name="productName"
-                  value={productData.productName}
-                  onChange={handleChange}
-                  error={!!errors.productName}
-                  helperText={errors.productName}
-                />
-                <TextField
-                  fullWidth
-                  label="Brand"
-                  name="brand"
-                  value={productData.brand}
-                  onChange={handleChange}
-                  error={!!errors.brand}
-                  helperText={errors.brand}
-                />
-              </Box>
+              <TextField
+                fullWidth
+                label="Product Name"
+                name="productName"
+                value={productData.productName}
+                onChange={handleChange}
+                error={!!errors.productName}
+                helperText={errors.productName}
+              />
 
               <TextField
                 fullWidth
@@ -314,7 +380,7 @@ function AddProduct() {
                 onChange={handleChange}
                 error={!!errors.description}
                 helperText={errors.description}
-                sx={{ mb: 2 }}
+                sx={{ my: 2 }}
               />
 
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>

@@ -14,16 +14,12 @@ const categoryMap = {
 
 const payload = dummyProducts.map((product) => {
   const variants = product.variant.map((v) => ({
-    sku: "SKU-" + Date.now(),
     variantId: uuidv4(),
     name: v.name,
     description: v.description,
     price: v.price,
     stock: v.stock,
     image: v.image,
-    size: v.size,
-    color: v.color,
-    material: v.material,
   }));
   return {
     sku: product.sku,
@@ -54,6 +50,7 @@ export async function POST(request) {
         variantId: uuidv4(),
       })),
     }));
+    let count = 0
 
     // Insert products one by one
     for (const product of formattedProducts) {

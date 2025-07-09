@@ -19,6 +19,13 @@ import {
   TablePagination,
   IconButton,
   Pagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Container,
+  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -28,15 +35,18 @@ import {
   Delete,
   Search as SearchIcon,
 } from "@mui/icons-material";
-
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { orange } from "@mui/material/colors";
+import toast from "react-hot-toast";
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [open, setOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedProductName, setSelectedProductName] = useState("");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const paginatedProducts = products.slice(
@@ -46,6 +56,24 @@ function Products() {
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const handleClickOpen = (e, product) => {
+    e.stopPropagation();
+    setSelectedProductId(product.id);
+    setSelectedProductName(product.name);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleNavigateWithLoading = (path) => {
+    setLoading(true);
+    setTimeout(() => {
+      router.push(path);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -62,8 +90,11 @@ function Products() {
         }
       } catch (error) {
         console.log("error : ", error.message);
+      } finally {
+        setTimeout(() => setLoading(false), 1500);
       }
     };
+    setTimeout(() => fetchProducts(), 0);
     fetchProducts();
   }, []);
 
@@ -73,6 +104,43 @@ function Products() {
       0
     );
   };
+
+  const handleDelete = async (id) => {
+    console.log("deleting product with id : ", id);
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "Delete",
+      });
+      const result = await res.json();
+      if (res.ok && result?.message) {
+        console.log("result of deleted product is : ", result);
+        setProducts((prev) => prev.filter((p) => p.id !== selectedProductId));
+        setOpen(false);
+        toast.success("Product Successfully Deleted", { duration: 3000 });
+      } else {
+        toast.error("Product Deletion Failed");
+      }
+    } catch (error) {
+      console.log("error:", error.message);
+      toast.error("Error deleting the product");
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container
+        maxWidth="lg"
+        sx={{
+          minHeight: "70vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress size={48} color="primary" />
+      </Container>
+    );
+  }
 
   return (
     <>
@@ -167,7 +235,7 @@ function Products() {
             startIcon={<AddCircleRounded />}
             sx={{ textTransform: "none", borderRadius: "8px", p: "9px 15px" }}
             onClick={() => {
-              router.push("/admin/products/add-product");
+              handleNavigateWithLoading("/admin/products/add-product");
             }}
           >
             Add Products
@@ -196,23 +264,51 @@ function Products() {
               </TableRow>
             </TableHead>
             <TableBody>
+              <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Delete Product</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Are you sure you want to delete {selectedProductName}{" "}
+                    product
+                  </DialogContentText>
+                </DialogContent>
+
+                <DialogActions>
+                  <Button onClick={handleClose} color="inherit">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(selectedProductId)}
+                    color="error"
+                  >
+                    Delete
+                  </Button>
+                </DialogActions>
+              </Dialog>
               {paginatedProducts.map((product) => (
                 <TableRow
                   key={product.id}
                   hover
                   onClick={() => {
-                    router.push(
+                    handleNavigateWithLoading(
                       `/admin/products/product-details/${product.id}`
                     );
                   }}
                   sx={{ cursor: "pointer" }}
                 >
-                  <TableCell padding="checkbox">
+                  <TableCell
+                    padding="checkbox"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
                     <Checkbox />
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar src={product.image} />
+                      <Avatar
+                        src={product.image || "/product_default_image.jpg"}
+                      />
                       <Typography variant="subtitle2">
                         {product.name}
                       </Typography>
@@ -221,8 +317,12 @@ function Products() {
                   <TableCell>{product.sku}</TableCell>
                   <TableCell>{product.category?.name}</TableCell>
                   <TableCell>All</TableCell>
-                  <TableCell>{ stockCalculate(product.variant) ?? "N/A"}</TableCell>
-                  <TableCell>${product.variant[0].price}</TableCell>
+                  <TableCell>
+                    {stockCalculate(product.variant) ?? "N/A"}
+                  </TableCell>
+                  <TableCell>{`$${product.variant[0].price.toFixed(
+                    2
+                  )}`}</TableCell>
                   <TableCell>
                     <Box
                       sx={{
@@ -254,7 +354,7 @@ function Products() {
                     <IconButton
                       sx={{ color: "red" }}
                       onClick={(e) => {
-                        e.stopPropagation();
+                        handleClickOpen(e, product);
                       }}
                     >
                       <Delete />

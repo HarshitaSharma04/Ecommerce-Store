@@ -25,74 +25,31 @@ export async function GET() {
   }
 }
 
-// ─────────────── CREATE PRODUCT ───────────────
-// export async function POST(request) {
-//   try {
-//     const body = await request.json();
-//     const {
-//       sku,
-//       slug,
-//       name,
-//       description,
-//       image,
-//       stock,
-//       status = "active",
-//       categoryId,
-//       merchantId,
-//       variant=[],
-//     } = body;
-
-//     const updatedVariants = variant.map((v) => ({
-//       ...v,
-//       variantId: uuidv4(), // Assign unique ID
-//     }));
-
-//     const newProduct = await prisma.product.create({
-//       data: {
-//         sku,
-//         slug,
-//         name,
-//         description,
-//         variant: updatedVariants,
-//         image,
-//         stock,
-//         status,
-//         categoryId,
-//         merchantId,
-//         variant: updatedVariants,
-//       },
-//     });
-//     console.log("product created : ", newProduct);
-//     return NextResponse.json(newProduct, { status: 201 });
-//   } catch (error) {
-//     console.error(error);
-//     return NextResponse.json(
-//       { error: "Failed to create product" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const {
-      sku,
-      name,
-      description,
-      image,
-      stock,
-      status = "active",
-      categoryId,
-      merchantId,
-      variant = [],
-    } = body;
+    const formData = await request.formData();
+
+    const name = formData.get("name");
+    const sku = formData.get("sku");
+    const description = formData.get("description");
+    const image = formData.get("image");
+    const status = formData.get("status") || "active";
+    const categoryId = formData.get("categoryId");
+    const merchantId = formData.get("merchantId");
+    const variantRaw = formData.get("variant");
 
     if (!name || !categoryId || !merchantId) {
       return NextResponse.json(
         { error: "Missing required fields: name, categoryId, or merchantId" },
         { status: 400 }
       );
+    }
+
+    let variant = [];
+    try {
+      variant = variantRaw ? JSON.parse(variantRaw) : [];
+    } catch (err) {
+      return NextResponse.json({ error: "Invalid variant JSON" }, { status: 400 });
     }
 
     const safeSlug = name
@@ -104,10 +61,10 @@ export async function POST(request) {
 
     const updatedVariants = variant.map((v) => ({
       ...v,
-      image: image || "",
-      stock:Number(v.stock),
-      price:parseFloat(v.price),
-      variantId: uuidv4(),
+      image: v.image || image || "",
+      stock: Number(v.stock),
+      price: parseFloat(v.price),
+      variantId: v.variantId || uuidv4(),
     }));
 
     const newProduct = await prisma.product.create({
@@ -138,3 +95,4 @@ export async function POST(request) {
     );
   }
 }
+

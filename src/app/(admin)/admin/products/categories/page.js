@@ -37,6 +37,7 @@ function Categories() {
   const [category, setCategory] = useState([])
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading , setLoading] = useState(true);
   const router = useRouter();
 
   const paginatedCategories = category.slice(
@@ -68,6 +69,7 @@ function Categories() {
   }, []);
 
   return (
+
     <>
       {/* Layout Wrapper */}
       <Box

@@ -12,6 +12,8 @@ import {
   Grid,
   Container,
   Button,
+  CircularProgress,
+  Avatar,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
@@ -24,9 +26,11 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
+  const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
 
   useEffect(() => {
     const fetchProductById = async (id) => {
+      setLoading(true);
       try {
         const res = await fetch(`/api/admin/products/${id}`);
         const result = await res.json();
@@ -39,11 +43,18 @@ export default function ProductDetailPage() {
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
-        setTimeout(() => setLoading(false), 1000);
+        setTimeout(() => setLoading(false), 1500);
       }
     };
     fetchProductById(id);
   }, [id]);
+
+  const handleNavigateWithLoading = (path) => {
+    setLoading(true);
+    setTimeout(() => {
+      router.push(path);
+    }, 1500);
+  };
 
   const stockCalculate = (variants) => {
     return variants.reduce(
@@ -54,29 +65,16 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Skeleton variant="text" width={200} height={40} />
-        <Card sx={{ mt: 3, p: 3 }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={5}>
-              <Skeleton variant="rectangular" height={400} />
-            </Grid>
-            <Grid item xs={12} md={7}>
-              <Skeleton variant="text" width="60%" height={40} />
-              <Skeleton variant="text" width="40%" height={30} sx={{ mt: 1 }} />
-              <Skeleton
-                variant="text"
-                width="100%"
-                height={100}
-                sx={{ mt: 2 }}
-              />
-              <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
-                <Skeleton variant="rectangular" width={100} height={32} />
-                <Skeleton variant="rectangular" width={100} height={32} />
-              </Stack>
-            </Grid>
-          </Grid>
-        </Card>
+      <Container
+        maxWidth="lg"
+        sx={{
+          minHeight: "65vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress size={48} color="primary" />
       </Container>
     );
   }
@@ -104,7 +102,7 @@ export default function ProductDetailPage() {
           startIcon={<ArrowBack />}
           sx={{ textTransform: "none", borderRadius: "8px", p: "10px 20px" }}
           onClick={() => {
-            router.push("/admin/products");
+            handleNavigateWithLoading("/admin/products");
           }}
         >
           Back
@@ -115,7 +113,9 @@ export default function ProductDetailPage() {
           startIcon={<EditIcon />}
           sx={{ textTransform: "none", borderRadius: "8px", p: "10px 20px" }}
           onClick={() => {
-            router.push("/admin/products");
+            router.push(
+              `/admin/products/update-product/${product.id}`
+            );
           }}
         >
           Edit
@@ -130,18 +130,18 @@ export default function ProductDetailPage() {
         <Grid container spacing={4}>
           {/* Left Side - Image */}
           <Grid item xs={12} md={5}>
-            <CardMedia
-              component="img"
+            <Avatar
+              variant="rounded"
+              src={product.image || "/product_default_image.jpg"}
+              alt="Product Image"
               sx={{
-                width: "100%",
-                height: "auto",
-                borderRadius: 2,
-                maxHeight: 400,
-                objectFit: "contain",
+                width: 350,
+                height: 350,
+                mb: 1,
+                border: "2px solid #e0e0e0",
+                transition: "0.3s",
+                "&:hover": { opacity: 0.8 },
               }}
-              image={product.image || "/product_default_image.jpg"}
-              alt={product.name}
-
             />
           </Grid>
 
@@ -231,17 +231,6 @@ export default function ProductDetailPage() {
                         >
                           {variant.description}
                         </Typography>
-                        {/* <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                          <Chip label={`Size: ${variant.size}`} size="small" />
-                          <Chip
-                            label={`Color: ${variant.color}`}
-                            size="small"
-                          />
-                          <Chip
-                            label={`Material: ${variant.material}`}
-                            size="small"
-                          />
-                        </Stack> */}
                         <Stack direction="row" spacing={1}>
                           <Chip
                             label={`₹${variant.price}`}

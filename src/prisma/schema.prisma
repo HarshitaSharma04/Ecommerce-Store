@@ -38,11 +38,12 @@ type Variant {
 
 model Product {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  sku         String?
+  sku         String
   slug        String   @unique
   name        String
   description String
   variant     Variant[]
+  collection  String?
   image       String
   status      String   @default("active")
   category    Category @relation(fields: [categoryId], references: [id])
