@@ -1,44 +1,18 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/db/prisma-connect';
 
-// ───── POST: Bulk Create Categories ─────
-// export async function POST(request) {
-//   try {
-//     const categories = await request.json();
-
-//     // Optional: Ensure each item has a unique slug
-//     const formatted = categories.map((cat) => ({
-//       name: cat.name,
-//       slug: cat.slug.toLowerCase().replace(/\s+/g, '-'),
-//       description: cat.description,
-//       image: cat.image,
-//     }));
-
-//     const result = await prisma.category.createMany({
-//       data: formatted,
-//       skipDuplicates: true, // ignore same slug
-//     });
-
-//     return NextResponse.json({ message: 'Bulk categories created', count: result.count });
-//   } catch (error) {
-//     console.error(error);
-//     return NextResponse.json({ error: 'Bulk category creation failed' }, { status: 500 });
-//   }
-// }
-
-
 export async function POST(request) {
   try {
     const body = await request.json();
 
     // Handle both single and bulk
     const categories = Array.isArray(body) ? body : [body];
-
     const formatted = categories.map((cat) => ({
       name: cat.name,
       slug: cat.slug?.toLowerCase().replace(/\s+/g, "-"),
       description: cat.description || "",
       image: cat.image || "",
+      status: cat.status || "",
     }));
 
     // Step 1: Find existing slugs

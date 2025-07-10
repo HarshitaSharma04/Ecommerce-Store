@@ -10,6 +10,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  MenuItem,
   Skeleton,
   Stack,
   TextField,
@@ -143,6 +144,24 @@ function updateProduct() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // fetch categories
+  const [categories, setCategories] = useState([]);
+    useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const res = await fetch("/api/admin/categories");
+          const result = await res.json();
+          console.log("result of categories : ", result);
+          if (result.success) {
+            setCategories(result.data);
+          }
+        } catch (error) {
+          console.log("error fetching categories : ", error.message);
+        }
+      };
+      fetchCategories();
+    }, []);
+
   // fetch existing product
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -264,321 +283,6 @@ function updateProduct() {
       console.log("error:", error.message);
     }
   };
-
-  // return (
-  //   <Box sx={{ p: 4 }}>
-
-  // <>
-  //   <Box
-  //     mb={4}
-  //     display="flex"
-  //     alignItems="center"
-  //     justifyContent="space-between"
-  //     flex-wrap="wrap"
-  //   >
-  //     <Button
-  //       variant="contained"
-  //       color="primary"
-  //       startIcon={<ArrowBack />}
-  //       sx={{
-  //         textTransform: "none",
-  //         borderRadius: "8px",
-  //         p: "10px 20px",
-  //       }}
-  //       onClick={() => {
-  //         router.push(`/admin/products/product-details/${id}`);
-  //       }}
-  //     >
-  //       Back
-  //     </Button>
-  //   </Box>
-
-  //   {/* add product text */}
-  //   <Typography variant="h4" mb={4} fontSize="30px">
-  //     Update Product
-  //   </Typography>
-
-  //   <Box display="flex" justifyContent="center">
-  //     <Grid
-  //       component="form"
-  //       onSubmit={handleSubmit}
-  //       container
-  //       spacing={4}
-  //       alignItems="flex-start"
-  //       sx={{ maxWidth: "1200px", width: "100%" }}
-  //     >
-  //       {/* Image Section */}
-  //       <Grid item sx={{ width: "30%" }}>
-  //         <Stack
-  //           spacing={2}
-  //           alignItems="center"
-  //           sx={{
-  //             border: "1px solid #e2e8f0",
-  //             borderRadius: 2,
-  //             p: 3,
-  //             bgcolor: "#fff",
-  //             // boxShadow: 1,
-  //           }}
-  //         >
-  //           {/* Image Preview */}
-  //           <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
-  //             <Avatar
-  //               variant="rounded"
-  //               src={imageUrl}
-  //               alt="Product Image"
-  //               sx={{
-  //                 width: 140,
-  //                 height: 140,
-  //                 mb: 1,
-  //                 border: "2px solid #e0e0e0",
-  //                 transition: "0.3s",
-  //                 "&:hover": { opacity: 0.8 },
-  //               }}
-  //             />
-  //           </label>
-
-  //           <input
-  //             type="file"
-  //             id="upload-image"
-  //             hidden
-  //             onChange={handleImageChange}
-  //             ref={fileInputRef}
-  //             accept="image/*"
-  //           />
-
-  //           {/* Product Name */}
-  //           <Typography
-  //             fontWeight={600}
-  //             fontSize="1.2rem"
-  //             textAlign="center"
-  //           >
-  //             {productData.productName || "Product Image"}
-  //           </Typography>
-  //           <Typography
-  //             variant="body2"
-  //             color="text.secondary"
-  //             textAlign="center"
-  //           >
-  //             Click image or use buttons to upload
-  //           </Typography>
-
-  //           <Divider
-  //             sx={{
-  //               width: "100%",
-  //               my: 2,
-  //               borderColor: "#e2e8f0",
-  //               borderBottomWidth: "2px",
-  //             }}
-  //           />
-
-  //           {/* Action Buttons */}
-  //           <Stack direction="row" spacing={2}>
-  //             <Button
-  //               variant="outlined"
-  //               onClick={() => fileInputRef.current?.click()}
-  //               sx={{
-  //                 textTransform: "none",
-  //                 fontWeight: 500,
-  //               }}
-  //             >
-  //               Choose Image
-  //             </Button>
-  //             <Button
-  //               variant="contained"
-  //               onClick={handleUploadToCloudinary} // your upload handler
-  //               disabled={!selectedFile}
-  //               sx={{
-  //                 textTransform: "none",
-  //                 fontWeight: 500,
-  //               }}
-  //             >
-  //               Upload Image
-  //             </Button>
-  //           </Stack>
-  //         </Stack>
-  //       </Grid>
-
-  //       {/* Form Section */}
-  //       <Grid item xs={12} md={12} sx={{ width: "60%" }}>
-  //         <Box
-  //           sx={{
-  //             border: "1px solid #e2e8f0",
-  //             borderRadius: "10px",
-  //             p: 3,
-  //             backgroundColor: "#fff",
-  //           }}
-  //         >
-  //           <Typography variant="h6" fontWeight={700} mb={2}>
-  //             Edit Product Details
-  //           </Typography>
-
-  //           <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-
-  //           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-  //             <TextField
-  //               fullWidth
-  //               label="Product Name"
-  //               name="productName"
-  //               value={productData.productName}
-  //               onChange={handleChange}
-  //               error={!!errors.productName}
-  //               helperText={errors.productName}
-  //             />
-  //           </Box>
-
-  //           <TextField
-  //             fullWidth
-  //             label="Description"
-  //             name="description"
-  //             multiline
-  //             rows={2}
-  //             value={productData.description}
-  //             onChange={handleChange}
-  //             error={!!errors.description}
-  //             helperText={errors.description}
-  //             sx={{ mb: 2 }}
-  //           />
-
-  //           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-  //             <TextField
-  //               //   select
-  //               fullWidth
-  //               label="Category"
-  //               name="category"
-  //               value={productData.category}
-  //               onChange={handleChange}
-  //               error={!!errors.category}
-  //               helperText={errors.category}
-  //             />
-
-  //             <TextField
-  //               fullWidth
-  //               label="Collection"
-  //               name="collection"
-  //               value={productData.collection}
-  //               onChange={handleChange}
-  //               error={!!errors.collection}
-  //               helperText={errors.collection}
-  //             />
-  //           </Box>
-
-  //           <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-  //         </Box>
-  //       </Grid>
-
-  //       {/* add variant box */}
-  //       <Box
-  //         sx={{
-  //           mt: 4,
-  //           p: 3,
-  //           border: "1px solid #e0e0e0",
-  //           borderRadius: 2,
-  //           backgroundColor: "#fafafa",
-  //           width: "100%",
-  //         }}
-  //       >
-  //         <Box
-  //           mb={2}
-  //           display="flex"
-  //           alignItems="center"
-  //           justifyContent="space-between"
-  //           flexWrap="wrap"
-  //         >
-  //           <Typography variant="h6" gutterBottom>
-  //             Add Variant
-  //           </Typography>
-  //           <Button
-  //             variant="contained"
-  //             color="primary"
-  //             size="small"
-  //             onClick={handleAddVariantBox}
-  //             startIcon={<AddCircleIcon />}
-  //             sx={{
-  //               textTransform: "none",
-  //               // backgroundColor: "#4caf50",
-  //               // ":hover": { backgroundColor: "#388e3c" },
-  //             }}
-  //           >
-  //             Add More Variant
-  //           </Button>
-  //         </Box>
-
-  //         <AnimatePresence>
-  //           {variants.map((variant, index) => (
-  //             <motion.div
-  //               key={index}
-  //               initial={{ opacity: 0, scale: 0.95, y: -10 }}
-  //               animate={{ opacity: 1, scale: 1, y: 0 }}
-  //               exit={{ opacity: 0, scale: 0.95, y: -10 }}
-  //               transition={{ duration: 0.3 }}
-  //             >
-  //               <Stack spacing={2} mb={4} component={Box}>
-  //                 {index !== 0 && (
-  //                   <Box sx={{ textAlign: "end" }}>
-  //                     <IconButton
-  //                       color="primary"
-  //                       onClick={() => handleRemoveVariant(index)}
-  //                     >
-  //                       <ClearIcon />
-  //                     </IconButton>
-  //                   </Box>
-  //                 )}
-  //                 <TextField
-  //                   fullWidth
-  //                   label="Variant Name"
-  //                   name="variantName"
-  //                   value={variant.variantName}
-  //                   onChange={(e) => handleVariantChange(index, e)}
-  //                 />
-  //                 <TextField
-  //                   fullWidth
-  //                   label="Variant Description"
-  //                   name="description"
-  //                   value={variant.description}
-  //                   onChange={(e) => handleVariantChange(index, e)}
-  //                 />
-  //                 <Stack direction="row" spacing={2}>
-  //                   <TextField
-  //                     fullWidth
-  //                     label="Stock"
-  //                     name="stock"
-  //                     type="number"
-  //                     value={variant.stock}
-  //                     onChange={(e) => handleVariantChange(index, e)}
-  //                   />
-  //                   <TextField
-  //                     fullWidth
-  //                     label="Price (₹)"
-  //                     name="price"
-  //                     value={variant.price}
-  //                     onChange={(e) => handleVariantChange(index, e)}
-  //                   />
-  //                 </Stack>
-  //               </Stack>
-  //             </motion.div>
-  //           ))}
-  //         </AnimatePresence>
-  //         <Button
-  //           type="submit"
-  //           variant="contained"
-  //           color="primary"
-  //           sx={{
-  //             textTransform: "none",
-  //             borderRadius: "8px",
-  //             p: "10px 20px",
-  //           }}
-  //           // onClick={() => {
-  //           //   router.push(`/admin/products/product-details/${id}`);
-  //           // }}
-  //         >
-  //           Save Product
-  //         </Button>
-  //       </Box>
-  //     </Grid>
-  //   </Box>
-  // </>
-  //   </Box>
-  // );
 
   return (
     <Box sx={{ p: 4 }}>
@@ -767,7 +471,7 @@ function updateProduct() {
 
                   <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                     <TextField
-                      //   select
+                      select
                       fullWidth
                       label="Category"
                       name="category"
@@ -775,7 +479,13 @@ function updateProduct() {
                       onChange={handleChange}
                       error={!!errors.category}
                       helperText={errors.category}
-                    />
+                    >
+                      {categories.map((cat) => (
+                        <MenuItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
 
                     <TextField
                       fullWidth

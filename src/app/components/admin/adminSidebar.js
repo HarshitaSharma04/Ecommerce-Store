@@ -44,11 +44,11 @@ const navItems = [
         href: "/admin/products/categories",
         icon: <CategoryIcon sx={{ color: "#ff9800", fontSize: "25px" }} />,
       },
-      {
-        text: "Collection",
-        href: "/admin/products/collection",
-        icon: <CollectionsIcon sx={{ color: "#9c27b0", fontSize: "25px" }} />,
-      },
+      // {
+      //   text: "Collection",
+      //   href: "/admin/products/collection",
+      //   icon: <CollectionsIcon sx={{ color: "#9c27b0", fontSize: "25px" }} />,
+      // },
     ],
   },
   {
@@ -62,6 +62,11 @@ const navItems = [
     icon: <ShoppingCartIcon sx={{ color: "#4caf50", fontSize: "25px" }} />,
   },
   {
+    text: "Transaction",
+    href: "/admin/transactions",
+    icon: <CompareArrowsOutlined sx={{ color: "#607d8b", fontSize: "25px" }} />,
+  },
+  {
     text: "Account",
     href: "/admin/account",
     icon: <AccountCircleIcon sx={{ color: "#f44336", fontSize: "25px" }} />,
@@ -70,11 +75,6 @@ const navItems = [
     text: "Settings",
     href: "/admin/settings",
     icon: <SettingsIcon sx={{ color: "#795548", fontSize: "25px" }} />,
-  },
-  {
-    text: "Transaction",
-    href: "/admin/transactions",
-    icon: <CompareArrowsOutlined sx={{ color: "#607d8b", fontSize: "25px" }} />,
   },
 ];
 

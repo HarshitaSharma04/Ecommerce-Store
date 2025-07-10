@@ -259,7 +259,7 @@ function Products() {
                 <TableCell>Stock</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
+                <TableCell>Created At</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Avatar,
   Box,
@@ -12,6 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Form } from "react-hook-form";
 
 function AddCategories() {
   const router = useRouter();
@@ -19,17 +21,11 @@ function AddCategories() {
     categoryName: "",
     slug: "",
     description: "",
-    brand: "",
-    stock: "",
-    status: "",
-    price: "",
-    variant: [{ size: "", color: "" }],
   });
-
-  const sizes = ["S", "M", "L", "XL"];
-  const colors = ["Red", "Blue", "Black", "White"];
-  //   const categories = ["clothing", "electronics", "home", "sports"];
   const [errors, setErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,17 +39,13 @@ function AddCategories() {
     }));
   };
 
-  const handleVariantChange = (e) => {
-    const { name, value } = e.target;
-    const updatedVariant = [...categoriesData.variant];
-    updatedVariant[0] = {
-      ...updatedVariant[0],
-      [name]: value,
-    };
-    setCategoriesData((prev) => ({
-      ...prev,
-      variant: updatedVariant,
-    }));
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const newImageUrl = URL.createObjectURL(file);
+      setImageUrl(newImageUrl);
+    }
   };
 
   const validate = () => {
@@ -66,53 +58,75 @@ function AddCategories() {
       newErrors.CategoryName = "Maximum 15 characters";
     }
     if (!categoriesData.description) newErrors.description = "Required";
-    if (!categoriesData.brand) newErrors.brand = "Required";
-    if (!categoriesData.category) newErrors.category = "Required";
-    if (!categoriesData.stock) newErrors.stock = "Required";
-    else if (isNaN(categoriesData.stock)) newErrors.stock = "Must be a number";
-    if (!categoriesData.price) newErrors.price = "Required";
-    else if (isNaN(categoriesData.price)) newErrors.price = "Must be a number";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
-    console.log("sdhbcksjd");
+    console.log("jdbcjd");
     e.preventDefault();
+    if (!validate()) {
+      console.log("Validation failed:", errors);
+      return;
+    }
     try {
+      const formData = new FormData();
+      formData.append("name", categoriesData.categoryName);
+      formData.append("description", categoriesData.description);
+      formData.append("image", imageUrl);
+      formData.append("merchantId", "68661e7da8804fafee40888b");
+
+      console.log("from data to be subbmitted : ", formData);
       const res = await fetch("/api/admin/categories", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: categoriesData.categoryName,
-          description: categoriesData.description,
-          slug: categoriesData.slug,
-          image: categoriesData.image,
-          brand: categoriesData.brand,
-          stock: categoriesData.stock,
-          status: categoriesData.status,
-          price: categoriesData.price,
-        }),
+        body: formData,
       });
       const result = await res.json();
-
       if (res.ok) {
-        console.log("✅ Newly created product: ", result.data);
+        console.log("✅ Newly created product: ", result);
         setCategoriesData({
           categoryName: "",
           description: "",
-          brand: "",
-          stock: "",
-          price: "",
-          status: "",
         });
-        router.push("/admin/categories");
+        toast.success("category Created Successfully", { duration: 3000 });
+        setTimeout(() => {
+          router.push("/admin/products/categories");
+        }, 4000);
       } else {
-        console.log("❌ Failed:", result.error);
+        console.log("❌ Failed:", result.message);
+        toast.error("❌ Failed to Create a category");
       }
     } catch (error) {
       console.log("error : ", error.message);
+    }
+  };
+
+  // upload image to cloudinary
+  const handleUploadToCloudinary = async () => {
+    console.log("image Uploading");
+    if (!selectedFile) {
+      toast.error("Please select an image first");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+    console.log("image :", formData);
+    try {
+      const res = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      console.log("Cloudinary Upload URL:", data.url);
+      if (res.ok && data?.url) {
+        console.log("✅ Image uploaded successfully:", data.url);
+        setImageUrl(data.url); // Update with Cloudinary image
+        toast.success("Image uploaded successfully!");
+      } else {
+        toast.error(data?.error || "Image upload failed");
+      }
+    } catch (error) {
+      console.log("error:", error.message);
     }
   };
 
@@ -124,6 +138,8 @@ function AddCategories() {
 
       <Box display="flex" justifyContent="center">
         <Grid
+          component="form"
+          onSubmit={handleSubmit}
           container
           spacing={4}
           alignItems="flex-start"
@@ -133,54 +149,92 @@ function AddCategories() {
           <Grid item sx={{ width: "30%" }}>
             <Stack
               spacing={2}
+              alignItems="center"
               sx={{
-                alignItems: "center",
                 border: "1px solid #e2e8f0",
-                borderRadius: "10px",
+                borderRadius: 2,
                 p: 3,
-                backgroundColor: "#fff",
+                bgcolor: "#fff",
+                // boxShadow: 1,
               }}
             >
-              <Avatar
-                variant="circular"
-                src="/shirt.jpg"
-                sx={{ width: 120, height: 120, mb: 2 }}
+              {/* Image Preview */}
+              <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+                <Avatar
+                  variant="rounded"
+                  src={imageUrl}
+                  alt="Category Image"
+                  sx={{
+                    width: 140,
+                    height: 140,
+                    mb: 1,
+                    border: "2px solid #e0e0e0",
+                    transition: "0.3s",
+                    "&:hover": { opacity: 0.8 },
+                  }}
+                />
+              </label>
+
+              <input
+                type="file"
+                id="upload-image"
+                hidden
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                accept="image/*"
               />
-              <Typography fontWeight={700} fontSize="1.2rem">
-                Product Category Image
+
+              {/* Product Name */}
+              <Typography fontWeight={600} fontSize="1.2rem" textAlign="center">
+                {categoriesData.categoryName || "Category Image"}
               </Typography>
-              <Typography color="text.secondary">
-                Preview or upload an image
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+              >
+                Click image or use buttons to upload
               </Typography>
 
               <Divider
                 sx={{
                   width: "100%",
-                  mx: "auto",
-                  my: 3,
+                  my: 2,
                   borderColor: "#e2e8f0",
                   borderBottomWidth: "2px",
                 }}
               />
 
-              <Button
-                variant="text"
-                sx={{
-                  color: "#6366f1",
-                  fontWeight: 600,
-                  textTransform: "none",
-                }}
-              >
-                Upload Image
-              </Button>
+              {/* Action Buttons */}
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="outlined"
+                  onClick={() => fileInputRef.current?.click()}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  Choose Image
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleUploadToCloudinary} // your upload handler
+                  disabled={!selectedFile}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  Upload Image
+                </Button>
+              </Stack>
             </Stack>
           </Grid>
 
           {/* Form Section */}
           <Grid item xs={12} md={12} sx={{ width: "60%" }}>
             <Box
-              component="form"
-              onSubmit={handleSubmit}
               sx={{
                 border: "1px solid #e2e8f0",
                 borderRadius: "10px",
@@ -194,7 +248,9 @@ function AddCategories() {
 
               <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
 
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}
+              >
                 <TextField
                   fullWidth
                   label="Category"
@@ -206,124 +262,25 @@ function AddCategories() {
                 />
                 <TextField
                   fullWidth
-                  label="Brand"
-                  name="brand"
-                  value={categoriesData.brand}
-                  onChange={handleChange}
-                  error={!!errors.brand}
-                  helperText={errors.brand}
-                />
-                <TextField
-                  fullWidth
                   label="Slug"
                   name="slug"
                   value={categoriesData.slug}
                   onChange={handleChange}
                 />
-              </Box>
 
-              <TextField
-                fullWidth
-                label="Description"
-                name="description"
-                multiline
-                rows={3}
-                value={categoriesData.description}
-                onChange={handleChange}
-                error={!!errors.description}
-                helperText={errors.description}
-                sx={{ mb: 2 }}
-              />
-
-              {/* <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Category"
-                  name="category"
-                  value={categoriesData.category}
-                  onChange={handleChange}
-                  error={!!errors.category}
-                  helperText={errors.category}
-                >
-                  {categories.map((cat) => (
-                    <MenuItem key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </MenuItem>
-                  ))}
-                </TextField> */}
-
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <TextField
                   fullWidth
-                  label="Stock"
-                  name="stock"
-                  value={categoriesData.stock}
+                  label="Description"
+                  name="description"
+                  multiline
+                  rows={3}
+                  value={categoriesData.description}
                   onChange={handleChange}
-                  error={!!errors.stock}
-                  helperText={errors.stock}
-                />
-                <TextField
-                  fullWidth
-                  label="Status"
-                  name="status"
-                  value={categoriesData.status}
-                  onChange={handleChange}
-                  error={!!errors.status}
-                  helperText={errors.status}
-                />
-                <TextField
-                  fullWidth
-                  label="Price"
-                  name="price"
-                  value={categoriesData.price}
-                  onChange={handleChange}
-                  error={!!errors.price}
-                  helperText={errors.price}
+                  error={!!errors.description}
+                  helperText={errors.description}
+                  sx={{ mb: 2 }}
                 />
               </Box>
-
-              <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Size"
-                  name="size"
-                  value={categoriesData.variant[0].size}
-                  onChange={handleVariantChange}
-                >
-                  {sizes.map((size) => (
-                    <MenuItem key={size} value={size}>
-                      {size}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Color"
-                  name="color"
-                  value={categoriesData.variant[0].color}
-                  onChange={handleVariantChange}
-                >
-                  {colors.map((color) => (
-                    <MenuItem key={color} value={color}>
-                      {color}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Box>
-
-              {/* <TextField
-                fullWidth
-                label="Price"
-                name="price"
-                value={categoriesData.price}
-                onChange={handleChange}
-                error={!!errors.price}
-                helperText={errors.price}
-              /> */}
 
               <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
 
@@ -340,44 +297,10 @@ function AddCategories() {
                     ":hover": { background: "#4f46e5" },
                   }}
                 >
-                  Create Product
+                  Create Category
                 </Button>
               </Box>
             </Box>
-
-            {/* <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Size"
-                  name="size"
-                  value={categoriesData.variant[0].size}
-                  onChange={handleVariantChange}
-                >
-                  {sizes.map((size) => (
-                    <MenuItem key={size} value={size}>
-                      {size}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Color"
-                  name="color"
-                  value={categoriesData.variant[0].color}
-                  onChange={handleVariantChange}
-                >
-                  {colors.map((color) => (
-                    <MenuItem key={color} value={color}>
-                      {color}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Box> */}
-
-            {/* </Box> */}
           </Grid>
         </Grid>
       </Box>

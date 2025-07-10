@@ -5,10 +5,10 @@ export const DummyCategories = [
     slug: "electronics",
     description: "Smartphones, laptops, gadgets, and accessories.",
     image: "https://images.unsplash.com/photo-1598965402089-897ce52e8355?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8c21hcnRwaG9uZXxlbnwwfHwwfHx8MA%3D%3D",
-    // status: "active",
+    status: "active",
     createdAt: "2024-12-10",
     updatedAt: "2025-02-15",
-    totalProducts: 120,
+    // totalProducts: 120,
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-11-01",
     updatedAt: "2025-01-28",
-    totalProducts: 95,
+    // totalProducts: 95,
   },
   {
     id: 3,
@@ -30,7 +30,7 @@ export const DummyCategories = [
     status: "inactive",
     createdAt: "2024-10-15",
     updatedAt: "2025-03-05",
-    totalProducts: 73,
+    // totalProducts: 73,
   },
   {
     id: 4,
@@ -38,10 +38,10 @@ export const DummyCategories = [
     slug: "books",
     description: "Fiction, academic, self-help, and more.",
     image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Ym9va3N8ZW58MHx8MHx8fDA%3D",
-    status: "active",
+    status: "draft",
     createdAt: "2024-09-20",
     updatedAt: "2025-01-10",
-    totalProducts: 200,
+    // totalProducts: 200,
   },
   {
     id: 5,
@@ -52,7 +52,7 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-12-01",
     updatedAt: "2025-02-02",
-    totalProducts: 88,
+    // totalProducts: 88,
   },
   {
     id: 6,
@@ -63,7 +63,7 @@ export const DummyCategories = [
     status: "inactive",
     createdAt: "2024-08-05",
     updatedAt: "2025-01-01",
-    totalProducts: 40,
+    // totalProducts: 40,
   },
   {
     id: 7,
@@ -74,7 +74,7 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-07-18",
     updatedAt: "2025-01-20",
-    totalProducts: 63,
+    // totalProducts: 63,
   },
   {
     id: 8,
@@ -85,7 +85,7 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-06-01",
     updatedAt: "2025-02-08",
-    totalProducts: 142,
+    // totalProducts: 142,
   },
   {
     id: 9,
@@ -96,7 +96,7 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-05-10",
     updatedAt: "2025-01-11",
-    totalProducts: 29,
+    // totalProducts: 29,
   },
   {
     id: 10,
@@ -107,6 +107,6 @@ export const DummyCategories = [
     status: "active",
     createdAt: "2024-11-11",
     updatedAt: "2025-02-28",
-    totalProducts: 51,
+    // totalProducts: 51,
   },
 ];
