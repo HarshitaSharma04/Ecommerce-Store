@@ -22,10 +22,10 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CategoryIcon from "@mui/icons-material/Category";
-import CollectionsIcon from "@mui/icons-material/Collections";
 import CompareArrowsOutlined from "@mui/icons-material/CompareArrowsOutlined";
+import SecurityIcon from '@mui/icons-material/Security';
 
-const drawerWidth = 260;
+const drawerWidth = 300;
 
 // Navigation items with children for Products
 const navItems = [
@@ -42,13 +42,8 @@ const navItems = [
       {
         text: "Categories",
         href: "/admin/products/categories",
-        icon: <CategoryIcon sx={{ color: "#ff9800", fontSize: "25px" }} />,
+        icon: <CategoryIcon sx={{ color: "#ff9800", fontSize: "20px" }} />,
       },
-      // {
-      //   text: "Collection",
-      //   href: "/admin/products/collection",
-      //   icon: <CollectionsIcon sx={{ color: "#9c27b0", fontSize: "25px" }} />,
-      // },
     ],
   },
   {
@@ -75,6 +70,18 @@ const navItems = [
     text: "Settings",
     href: "/admin/settings",
     icon: <SettingsIcon sx={{ color: "#795548", fontSize: "25px" }} />,
+    children: [
+      {
+        text: "My Profile",
+        href: "/admin/settings/account-setting",
+        icon: <AccountCircleIcon sx={{ color: "#e211c6ff", fontSize: "20px" }} />,
+      },
+      {
+        text: "Security",
+        href: "/admin/settings/password-setting",
+        icon: <SecurityIcon sx={{ color: "#269496ffff", fontSize: "20px" }} />,
+      },
+    ],
   },
 ];
 

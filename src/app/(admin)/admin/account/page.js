@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -13,14 +13,16 @@ import {
 } from "@mui/material";
 
 function Account() {
-  const [AccountData, setAccountData] = useState({
+  const defaultUserData = {
     firstName: "",
     lastName: "",
-    email: "",
     phone: "",
+    email: "",
     state: "",
     city: "",
-  });
+  };
+
+  const [AccountData, setAccountData] = useState(defaultUserData);
 
   const states = [
     "Andhra Pradesh",
@@ -66,18 +68,29 @@ function Account() {
     }));
   };
 
-  // const handleVariantChange = (e) => {
-  //   const { name, value } = e.target;
-  //   const updatedVariant = [...AccountData.variant];
-  //   updatedVariant[0] = {
-  //     ...updatedVariant[0],
-  //     [name]: value,
-  //   };
-  //   setAccountData((prev) => ({
-  //     ...prev,
-  //     variant: updatedVariant,
-  //   }));
-  // };
+  // fetch existing user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/users");
+        const result = await res.json();
+        console.log("result : ", result);
+        if (res.ok && result) {
+          setAccountData({
+            ...defaultUserData,
+            ...Object.fromEntries(
+              Object.entries(result).map(([key, val]) => [key, val ?? ""])
+            ),
+          });
+        } else {
+          console.log("failed to fetch data");
+        }
+      } catch (error) {
+        console.log("error : ", error.message);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -124,178 +137,176 @@ function Account() {
   };
 
   return (
-    <Box sx={{ p: 3  }}>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" mb={4} fontSize="30px">
         Account
       </Typography>
 
       {/* <Box display="flex" > */}
-        <Grid
-          container
-          spacing={4}
-          alignItems="flex-start"
-          sx={{ maxWidth: "1200px", width: "100%" }}
-        >
-          {/* Image Section */}
-          <Grid item sx={{ width: "35%" }}>
-            <Stack
-              spacing={1}
+      <Grid
+        container
+        spacing={4}
+        alignItems="flex-start"
+        sx={{ maxWidth: "1200px", width: "100%" }}
+      >
+        {/* Image Section */}
+        <Grid item sx={{ width: "35%" }}>
+          <Stack
+            spacing={1}
+            sx={{
+              alignItems: "center",
+              border: "1px solid #e2e8f0",
+              borderRadius: "30px",
+              p: 3,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Avatar
+              variant="rounded"
+              src=""
+              sx={{ width: 120, height: 120, mb: 2 }}
+            />
+            <Typography fontWeight={700} fontSize="1.2rem">
+              Name
+            </Typography>
+            <Typography color="text.secondary">Email</Typography>
+            <Typography color="text.secondary">Location</Typography>
+
+            <Divider
               sx={{
-                alignItems: "center",
-                border: "1px solid #e2e8f0",
-                borderRadius: "30px",
-                p: 3,
-                backgroundColor: "#fff",
+                width: "100%",
+                mx: "auto",
+                my: 3,
+                borderColor: "#e2e8f0",
+                borderBottomWidth: "2px",
+              }}
+            />
+
+            <Button
+              variant="text"
+              sx={{
+                color: "#6366f1",
+                fontWeight: 600,
+                textTransform: "none",
               }}
             >
-              <Avatar
-                variant="rounded"
-                src=""
-                sx={{ width: 120, height: 120, mb: 2 }}
-              />
-              <Typography fontWeight={700} fontSize="1.2rem">
-                Name
-              </Typography>
-              <Typography color="text.secondary">Email</Typography>
-              <Typography color="text.secondary">Location</Typography>
+              Upload Image
+            </Button>
+          </Stack>
+        </Grid>
 
-              <Divider
-                sx={{
-                  width: "100%",
-                  mx: "auto",
-                  my: 3,
-                  borderColor: "#e2e8f0",
-                  borderBottomWidth: "2px",
-                }}
+        {/* Form Section */}
+        <Grid item xs={12} md={12} sx={{ width: "55%" }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              border: "1px solid #e2e8f0",
+              borderRadius: "30px",
+              p: 3,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Typography variant="h6" fontWeight={700} mb={2}>
+              Profile
+            </Typography>
+
+            <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
+
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                value={AccountData.firstName}
+                onChange={handleChange}
+                error={!!errors.firstName}
+                helperText={errors.firstName}
               />
 
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                value={AccountData.lastName}
+                onChange={handleChange}
+                error={!!errors.lastName}
+                helperText={errors.lastName}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <TextField
+                fullWidth
+                label="phone"
+                name="phone"
+                value={AccountData.phone}
+                onChange={handleChange}
+                error={!!errors.phone}
+                helperText={errors.phone}
+              />
+
+              <TextField
+                fullWidth
+                label="email"
+                name="email"
+                value={AccountData.email}
+                onChange={handleChange}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <TextField
+                select
+                fullWidth
+                label="State"
+                name="state"
+                value={AccountData.state}
+                onChange={handleChange}
+                error={!!errors.state}
+                helperText={errors.state}
+              >
+                {states.map((map) => (
+                  <MenuItem key={map} value={map}>
+                    {map.charAt(0).toUpperCase() + map.slice(1)}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                fullWidth
+                label="city"
+                name="city"
+                value={AccountData.city}
+                onChange={handleChange}
+                error={!!errors.city}
+                helperText={errors.city}
+              />
+            </Box>
+
+            <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
+
+            <Box textAlign="right">
               <Button
-                variant="text"
+                type="submit"
+                variant="contained"
                 sx={{
-                  color: "#6366f1",
-                  fontWeight: 600,
-                  textTransform: "none",
+                  background: "#6366f1",
+                  fontWeight: "bold",
+                  px: 4,
+                  py: 1.3,
+                  borderRadius: 2,
+                  ":hover": { background: "#4f46e5" },
                 }}
               >
-                Upload Image
+                Save
               </Button>
-            </Stack>
-          </Grid>
-
-          {/* Form Section */}
-          <Grid item xs={12} md={12} sx={{width:"55%"}} >
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{
-                border: "1px solid #e2e8f0",
-                borderRadius: "30px",
-                p: 3,
-                backgroundColor: "#fff",
-              }}
-            >
-              <Typography variant="h6" fontWeight={700} mb={2}>
-                Profile
-              </Typography>
-
-              <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-
-              <Box sx={{ display: "flex", gap: 2, mb: 2  }}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  name="firstName"
-                  value={AccountData.firstName}
-                  onChange={handleChange}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  name="lastName"
-                  value={AccountData.lastName}
-                  onChange={handleChange}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName}
-                />
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  fullWidth
-                  label="phone"
-                  name="phone"
-                  value={AccountData.phone}
-                  onChange={handleChange}
-                  error={!!errors.phone}
-                  helperText={errors.phone}
-                />
-              
-                <TextField
-                  fullWidth
-                  label="email"
-                  name="email"
-                  value={AccountData.email}
-                  onChange={handleChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                />
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="State"
-                  name="state"
-                  value={AccountData.state}
-                  onChange={handleChange}
-                  error={!!errors.state}
-                  helperText={errors.state}
-                >
-                  {states.map((map) => (
-                    <MenuItem key={map} value={map}>
-                      {map.charAt(0).toUpperCase() + map.slice(1)}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  fullWidth
-                  label="city"
-                  name="city"
-                  value={AccountData.city}
-                  onChange={handleChange}
-                  error={!!errors.city}
-                  helperText={errors.city}
-                />
-              </Box>
-
-             
-              <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
-
-              <Box textAlign="right">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    background: "#6366f1",
-                    fontWeight: "bold",
-                    px: 4,
-                    py: 1.3,
-                    borderRadius: 2,
-                    ":hover": { background: "#4f46e5" },
-                  }}
-                >
-                  Save
-                </Button>
-              </Box>
             </Box>
-          </Grid>
-
+          </Box>
         </Grid>
+      </Grid>
       {/* </Box> */}
     </Box>
   );

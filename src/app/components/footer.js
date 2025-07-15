@@ -11,6 +11,7 @@ export default function Footer() {
         background:
           "linear-gradient(135deg, #15b79e 0%, #b5c0d2 40%, #122647 100%)",
         color: "#192c4b",
+        component:"footer" ,
       }}
     >
       <Container maxWidth="md">

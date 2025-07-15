@@ -43,7 +43,6 @@ export async function POST(request) {
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9\-]/g, "");
 
-
     const newCategory = await prisma.category.create({
       data: {
         name,

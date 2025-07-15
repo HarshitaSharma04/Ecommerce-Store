@@ -10,40 +10,40 @@ import {
   Box,
 } from "@mui/material";
 import Link from "next/link";
-import Navbar from "../navbar";
-import Footer from "../footer";
-
-const products = [
-  {
-    id: 1,
-    name: "Modern T-Shirt",
-    price: "₹499",
-    image: "shirt.jpg",
-  },
-  {
-    id: 2,
-    name: "Sports Shoes",
-    price: "₹1,299",
-    image: "shoes.jpg",
-  },
-  {
-    id: 3,
-    name: "Digital Watch",
-    price: "₹2,499",
-    image: "watch.jpg",
-  },
-];
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
+  const [products, setProduct] = useState([]);
   const currentMonth = new Date().toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("api/admin/products");
+        const result = await res.json();
+        if (res.ok && result.success) {
+          const firstThree = result.data.slice(0, 3);
+          setProduct(firstThree);
+        }
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
-    // <main>
-      <Box>
-        {/* Hero Section */}
+    <Box>
+      {/* ✅ Hero Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      >
         <Box
           sx={{
             background:
@@ -82,9 +82,15 @@ export default function LandingPage() {
             </Button>
           </Container>
         </Box>
+      </motion.div>
 
-        {/* Featured Products */}
-        <Container sx={{ py: 8 }}>
+      {/* ✅ Featured Products Section */}
+      <Container sx={{ py: 8 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        >
           <Typography
             variant="overline"
             textAlign="center"
@@ -104,64 +110,96 @@ export default function LandingPage() {
           >
             Featured Products
           </Typography>
+        </motion.div>
 
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 4,
-              mt: 4,
-            }}
-          >
-            {products.map((product) => (
-              <Card
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 4,
+            mt: 4,
+          }}
+        >
+          {products.map((product, i) => {
+            const variant = product.variant?.[0];
+
+            return (
+              <Link
                 key={product.id}
-                sx={{
-                  width: 280,
-                  backgroundColor: "#f8fafa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 2,
-                  transition: "transform 0.3s ease",
-                  "&:hover": {
-                    transform: "scale(1.03)",
-                    boxShadow: 6,
-                  },
-                }}
+                href={`/all-products/${product.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
               >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={product.image}
-                  alt={product.name}
-                />
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="#122647">
-                    {product.name}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    {product.price}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    fullWidth
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: i * 0.2 }}
+                >
+                  <Card
                     sx={{
-                      mt: 2,
-                      color: "#15b79e",
-                      borderColor: "#15b79e",
+                      width: 280,
+                      backgroundColor: "#f8fafa",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 2,
+                      transition: "transform 0.3s ease",
                       "&:hover": {
-                        backgroundColor: "#e6f8f5",
-                        borderColor: "#13a28c",
+                        transform: "scale(1.03)",
+                        boxShadow: 6,
                       },
                     }}
                   >
-                    Add to Cart
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={product.image || "/product_default_image.jpg"}
+                      alt={product.name}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="#122647">
+                        {product.name}
+                      </Typography>
+                      <Typography color="text.secondary">
+                        {product.description}
+                      </Typography>
+                      {variant && (
+                        <>
+                          <Typography variant="body2" fontWeight={500}>
+                            Variant: {variant.name || "N/A"}
+                          </Typography>
+                          <Typography color="text.secondary">
+                            ₹{variant.price ?? "N/A"}
+                          </Typography>
+                        </>
+                      )}
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          mt: 2,
+                          color: "#15b79e",
+                          borderColor: "#15b79e",
+                          "&:hover": {
+                            backgroundColor: "#e6f8f5",
+                            borderColor: "#13a28c",
+                          },
+                        }}
+                      >
+                        Add to Cart
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </Link>
+            );
+          })}
+        </Box>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
           <Box textAlign="center" mt={5}>
             <Button
               component={Link}
@@ -176,8 +214,8 @@ export default function LandingPage() {
               View All Products →
             </Button>
           </Box>
-        </Container>
-      </Box>
-    // </main>
+        </motion.div>
+      </Container>
+    </Box>
   );
 }
