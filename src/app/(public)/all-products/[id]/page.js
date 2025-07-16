@@ -19,13 +19,17 @@ import { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ArrowBack } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/app/store/cartSlice";
 
 export default function ProductDetailPage() {
+  const dispatch = useDispatch();
   const router = useRouter();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
+  const [selectedVariant, setSelectedVariant] = useState(0);
 
   useEffect(() => {
     const fetchProductById = async (id) => {
@@ -60,6 +64,27 @@ export default function ProductDetailPage() {
       (sum, v) => sum + (typeof v.stock === "number" ? v.stock : 0),
       0
     );
+  };
+
+  const handleAddToCart = () => {
+    const variant = product?.variant?.[selectedVariant];
+    if (!variant) {
+      console.error("Variant not found. selectedVariant =", selectedVariant);
+      return;
+    }
+
+    const cartItem = {
+      productId: product.id,
+      variantId: variant.variantId,
+      name: `${product.name} - ${variant.name}`,
+      image: variant.image || product.image,
+      price: variant.price,
+      quantity: 1,
+    };
+
+    console.log("dispatch item :", cartItem)
+    dispatch(addToCart(cartItem));
+    
   };
 
   if (loading) {
@@ -118,7 +143,11 @@ export default function ProductDetailPage() {
           <Grid item xs={12} md={5}>
             <Avatar
               variant="rounded"
-              src={product.image || "/product_default_image.jpg"}
+              src={
+                selectedVariant !== null
+                  ? product.variant[selectedVariant].image
+                  : product.image || "/product_default_image.jpg"
+              }
               alt="Product Image"
               sx={{
                 width: 350,
@@ -148,16 +177,31 @@ export default function ProductDetailPage() {
               </Typography>
 
               <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-                <Chip
-                  label={`₹${product.variant[0].price}`}
-                  color="success"
-                  size="medium"
-                />
-                <Chip
-                  label={`Stock: ${stockCalculate(product.variant)}`}
-                  color={product.stock > 0 ? "warning" : "error"}
-                  size="medium"
-                />
+                {selectedVariant !== null ? (
+                  <>
+                    <Chip
+                      label={`₹${product.variant[selectedVariant].price}`}
+                      color="success"
+                      size="medium"
+                    />
+                    <Chip
+                      label={`Stock: ${product.variant[selectedVariant].stock}`}
+                      color={
+                        product.variant[selectedVariant].stock > 0
+                          ? "warning"
+                          : "error"
+                      }
+                      size="medium"
+                    />
+                  </>
+                ) : (
+                  <Chip
+                    label="Select a Variant"
+                    color="default"
+                    size="medium"
+                  />
+                )}
+
                 <Chip
                   label={product.status}
                   color={product.status === "active" ? "success" : "error"}
@@ -181,6 +225,21 @@ export default function ProductDetailPage() {
                   />
                 )}
               </Stack>
+
+              <Button
+                variant="outlined"
+                onClick={handleAddToCart}
+                sx={{
+                  color: "#15b79e",
+                  borderColor: "#15b79e",
+                  "&:hover": {
+                    backgroundColor: "#e6f8f5",
+                    borderColor: "#13a28c",
+                  },
+                }}
+              >
+                Add to Cart
+              </Button>
             </CardContent>
           </Grid>
         </Grid>
@@ -195,7 +254,27 @@ export default function ProductDetailPage() {
             <Grid container spacing={2}>
               {product.variant.map((variant, index) => (
                 <Grid item xs={12} sm={6} key={index}>
-                  <Card variant="outlined" sx={{ p: 2 }}>
+                  <Card
+                    variant="outlined"
+                    onClick={() => setSelectedVariant(index)}
+                    sx={{
+                      p: 2,
+                      cursor: "pointer",
+                      backgroundColor:
+                        selectedVariant === index ? "#a4bfcc" : "#ffffff",
+                      color: "#fff",
+                      border:
+                        selectedVariant === index
+                          ? "2px solid #a4bfcc"
+                          : "1px solid #444",
+                      boxShadow:
+                        selectedVariant === index ? "0 0 10px #a4bfcc" : "none",
+                      transition: "0.3s ease",
+                      // "&:hover": {
+                      //   backgroundColor: "#333",
+                      // },
+                    }}
+                  >
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                       <Box
                         component="img"
@@ -219,7 +298,7 @@ export default function ProductDetailPage() {
                         </Typography>
                         <Stack direction="row" spacing={1}>
                           <Chip
-                            label={`₹${variant.price}`}
+                            label={`Price: ₹${variant.price}`}
                             color="success"
                             size="small"
                           />

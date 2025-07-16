@@ -89,7 +89,7 @@ export default function Navbar() {
             {/* <Button component={Link} href="/signUp" sx={{ color: "black" }}>
               Signup
             </Button> */}
-            <IconButton component={Link} href="/cart" sx={{ color: "#b5c0d2" }}>
+            <IconButton component={Link} href="/carts" sx={{ color: "#b5c0d2" }}>
               <Badge badgeContent={cartCount} color="error">
                 <ShoppingCartIcon />
               </Badge>

@@ -57,13 +57,6 @@ function PasswordSetting() {
           <Box display="flex" flexDirection="column" gap={3}>
             <TextField
               sx={textFieldStyle}
-              label="Email Address"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <TextField
-              sx={textFieldStyle}
               label="Old Password"
               name="oldPassword"
               value={formData.oldPassword}

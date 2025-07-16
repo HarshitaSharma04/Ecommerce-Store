@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import {
   Box,
@@ -20,13 +19,14 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DiscountIcon from "@mui/icons-material/Discount";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 
 const CartSummary = ({
   productsTotal = 134.98,
   shipping = 9.99,
   itemsCount = 0,
 }) => {
-   const router = useRouter();
+  const router = useRouter();
   const total = productsTotal + shipping;
 
   return (
@@ -111,12 +111,11 @@ const CartSummary = ({
 
 function CartPage() {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState(DummyCart);
+  // const cartItems = useSelector((state) => state.cart.cartItems);
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  console.log("Redux cartItems:", cartItems);
 
-  const handleRemoveItem = (id) => {
-    const updatedItems = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedItems);
-  };
+  const dispatch = useDispatch();
 
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -190,8 +189,8 @@ function CartPage() {
                       }}
                     >
                       <Image
-                        src={cart.productImage}
-                        alt={cart.productName}
+                        src={cart.image}
+                        alt={cart.image}
                         fill
                         style={{ objectFit: "cover" }}
                       />
@@ -210,15 +209,9 @@ function CartPage() {
                             fontWeight="bold"
                             sx={{ mb: 0.5 }}
                           >
-                            {cart.productName}
+                            {cart.name}
                           </Typography>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ mb: 1 }}
-                          >
-                            {cart.brand}
-                          </Typography>
+                         
                         </Box>
                         <Typography variant="subtitle1" fontWeight="bold">
                           ₹{cart.price.toFixed(2)}

@@ -96,3 +96,31 @@ export async function POST(request) {
   }
 }
 
+export async function PUT(){
+  try {
+    prisma.product.updateMany(
+  { updatedAt: null },
+  { $set: { updatedAt: new Date() } }
+)
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Done",
+      },
+      { status: 200 }
+    );
+
+  } catch (error) {
+     console.error("❌ Product creation error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: error?.message || "Something went wrong",
+        error: JSON.stringify(error),
+      },
+      { status: 500 }
+    );
+  }
+}
+

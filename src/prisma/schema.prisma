@@ -25,12 +25,12 @@ model User {
   avatar    String?
   role      String   // 'admin' or 'customer'
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime? @updatedAt
 
   // Relations
   products Product[] @relation("UserProducts")
+  carts    Cart[]    @relation("UserCarts")     // ✅ Added this
 }
-
 
 type Variant {
   variantId   String
@@ -53,22 +53,57 @@ model Product {
   status      String   @default("active")
   category    Category @relation(fields: [categoryId], references: [id])
   categoryId  String
-  // Relation to User - corrected
   user        User     @relation("UserProducts", fields: [merchantId], references: [id])
   merchantId  String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  cartItems   CartItem[] @relation("ProductCartItems") // ✅ Added this
 }
 
 model Category {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  slug        String    @unique
+  slug        String   @unique
   description String
   image       String
   products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
+model Orders {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+}
 
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  user      User       @relation("UserCarts", fields: [userId], references: [id])
+  userId    String
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  cart       Cart        @relation(fields: [cartId], references: [id])
+  cartId     String
+
+  product    Product     @relation("ProductCartItems", fields: [productId], references: [id])
+  productId  String
+
+  variantId  String
+  variant    VariantInfo
+
+  quantity   Int         @default(1)
+  price      Float
+}
+
+type VariantInfo {
+  name        String
+  description String
+  price       Float
+  stock       Int
+  image       String
+}

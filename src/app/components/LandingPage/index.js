@@ -19,7 +19,7 @@ export default function LandingPage() {
     month: "long",
     year: "numeric",
   });
-
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {

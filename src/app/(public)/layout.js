@@ -4,6 +4,7 @@ import Footer from "../components/footer";
 
 function PublicLayout({ children }) {
   return (
+    
     <main>
       <Navbar />
       {children}

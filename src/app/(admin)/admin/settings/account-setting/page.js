@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
 
 function AccountSetting() {
   const defaultUserData = {
@@ -22,6 +23,7 @@ function AccountSetting() {
     email: "",
     gender: "",
     address: "",
+    avatar:""
   };
 
   const [userData, setuserData] = useState(defaultUserData);
@@ -52,8 +54,7 @@ function AccountSetting() {
   };
 
   const handleSaveAvatar = () => {
-    // You can handle image upload logic here
-    alert("Avatar saved (placeholder logic)");
+    console.log("save image ..........")
   };
 
   //   validation
@@ -106,12 +107,31 @@ function AccountSetting() {
   };
 
   //   Handle Submit
-  const handleSubmit = (e) => {
-    e.preventDefault(); // ⛔️ Prevent form reload
+  const handleSubmit =  async(e) => {
+    e.preventDefault() ;
     if (validate()) {
-      console.log("Form submitted:", userData);
+      console.log("Update Information:", userData);
     } else {
       console.log("Validation failed");
+    }
+    try {
+      const res = await fetch("/api/users/update",{
+        method:"PUT",
+        headers:{
+          "Content-Type": "Application/json"
+        },
+        body:JSON.stringify(userData)
+      })
+      const result =await res.json();
+      if(res.ok && result.success){
+        console.log("Update Successfully:", result)
+        toast.success("Update Successfully")
+      }else{
+        console.log("updateion failed") 
+        toast.error("Updation Failed")
+      }
+    } catch (error) {
+      console.log("error :", error.message)
     }
   };
 

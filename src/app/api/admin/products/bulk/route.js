@@ -22,7 +22,7 @@ const payload = dummyProducts.map((product) => {
     image: v.image,
   }));
   return {
-    sku: product.sku,
+    sku: product.sku ||  "SKU-" + Date.now(),
     slug: product.name?.toLowerCase().replace(/\s+/g, "-") || uuidv4(),
     name: product.name,
     description: product.description,
