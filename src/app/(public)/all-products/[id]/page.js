@@ -19,8 +19,9 @@ import { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ArrowBack } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/app/store/cartSlice";
+import toast from "react-hot-toast";
 
 export default function ProductDetailPage() {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
   const [selectedVariant, setSelectedVariant] = useState(0);
+  const user = useSelector((state) => state.auth.user);
+  console.log("user :", user)
 
   useEffect(() => {
     const fetchProductById = async (id) => {
@@ -66,14 +69,22 @@ export default function ProductDetailPage() {
     );
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const variant = product?.variant?.[selectedVariant];
     if (!variant) {
       console.error("Variant not found. selectedVariant =", selectedVariant);
       return;
     }
 
+    if (!user || !user.id) {
+      console.error(
+        "User not found. Make sure user is logged in and stored in Redux."
+      );
+      return;
+    }
+
     const cartItem = {
+      userId: user?.id,
       productId: product.id,
       variantId: variant.variantId,
       name: `${product.name} - ${variant.name}`,
@@ -81,10 +92,31 @@ export default function ProductDetailPage() {
       price: variant.price,
       quantity: 1,
     };
+    console.log("userID:", user?.id);
 
-    console.log("dispatch item :", cartItem)
+    console.log("dispatch item :", cartItem);
     dispatch(addToCart(cartItem));
-    
+    console.log("data sending to db:", cartItem);
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cartItem),
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        console.log("item added to database:", result.data);
+        toast.success("Item added to cart")
+      } else {
+        console.log("not found");
+        toast.error("Something went wrong")
+      }
+    } catch (error) {
+      console.log("error:", error.message);
+    }
   };
 
   if (loading) {

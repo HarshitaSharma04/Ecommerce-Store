@@ -19,7 +19,7 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function Navbar() {
-  const cartCount = 3; // Replace with Redux/context in production
+  // const cartCount = 3; // Replace with Redux/context in production
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -90,7 +90,7 @@ export default function Navbar() {
               Signup
             </Button> */}
             <IconButton component={Link} href="/carts" sx={{ color: "#b5c0d2" }}>
-              <Badge badgeContent={cartCount} color="error">
+              <Badge  color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>

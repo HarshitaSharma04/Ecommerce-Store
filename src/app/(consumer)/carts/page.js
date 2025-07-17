@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,6 +10,7 @@ import {
   Grid,
   Divider,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import Image from "next/image";
 import { DummyCart } from "@/data/consumer-dummy-data/dummy-cart";
@@ -20,6 +21,8 @@ import DiscountIcon from "@mui/icons-material/Discount";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { removeFromCart } from "@/app/store/cartSlice";
+import toast from "react-hot-toast";
 
 const CartSummary = ({
   productsTotal = 134.98,
@@ -111,177 +114,241 @@ const CartSummary = ({
 
 function CartPage() {
   const router = useRouter();
-  // const cartItems = useSelector((state) => state.cart.cartItems);
-  const cartItems = useSelector((state) => state.cart.cartItems);
-  console.log("Redux cartItems:", cartItems);
-
+  const cart = useSelector((state) => state.cart.cartItems);
+  console.log("Redux cartItems:", cart);
+  const [cartItems, setCartItems] = useState(cart);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
+  // remove from cart
+  const handleRemoveFromCart = async (id) => {
+    console.log("Remove from cart...");
+    try {
+      const res = await fetch(`/api/cart/${id}`, {
+        method: "DELETE",
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        console.log("item removed from cart:", result);
+        toast.success("Item removed from cart");
+        dispatch(removeFromCart(id));
+        setCartItems((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        console.log("error:", error);
+        toast.error(result.message || "Failed to remove item.");
+      }
+    } catch (error) {
+      console.log("error:", error);
+      toast.error("Something went wrong.");
+    }
+  };
+
+  //fetch cart products
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const res = await fetch("/api/cart");
+        const result = await res.json();
+        console.log("data comes from db:", result);
+        if (res.ok) {
+          console.log("fetch data from db:", result.data);
+          setCartItems(result.data);
+        } else {
+          console.log("cart data not found");
+        }
+      } catch (error) {
+        console.log("error:", error.message);
+      } finally {
+        setTimeout(() => setLoading(false), 1500);
+      }
+    };
+    fetchCart();
+  }, []);
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" fontWeight="bold" mb={4}>
-        Your Shopping Cart
-      </Typography>
-
-      {cartItems.length === 0 ? (
-        <Box textAlign="center" py={8}>
-          <Typography variant="h5" mb={2}>
-            Your cart is empty
-          </Typography>
-          <Button variant="contained" href="/">
-            Continue Shopping
-          </Button>
-        </Box>
+    <Box>
+      {loading ? (
+        <>
+          <Container
+            maxWidth="lg"
+            sx={{
+              minHeight: "70vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress size={48} color="primary" />
+          </Container>
+        </>
       ) : (
-        <Grid container spacing={4}>
-          {/* Cart Items */}
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Stack spacing={3}>
-              {cartItems.map((cart, index) => (
-                <motion.div
-                  key={cart.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <Box
-                    display="flex"
-                    flexDirection={{ xs: "column", sm: "row" }}
-                    alignItems={{ xs: "flex-start", sm: "center" }}
-                    justifyContent="space-between"
-                    p={3}
-                    sx={{
-                      borderRadius: 2,
-                      boxShadow: 1,
-                      backgroundColor: "background.paper",
-                      position: "relative",
-                      gap: 3,
-                      border: "1px solid",
-                      borderColor: "divider",
-                    }}
-                  >
-                    {/* Delete Button */}
-                    <IconButton
-                      onClick={() => handleRemoveItem(cart.id)}
-                      sx={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        color: "text.secondary",
-                        "&:hover": { color: "error.main" },
-                      }}
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
+        <>
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h4" fontWeight="bold" mb={4}>
+              Your Shopping Cart
+            </Typography>
 
-                    {/* Product Image */}
-                    <Box
-                      sx={{
-                        width: { xs: "100%", sm: 120 },
-                        height: 120,
-                        position: "relative",
-                        borderRadius: 1,
-                        overflow: "hidden",
-                      }}
-                    >
-                      <Image
-                        src={cart.image}
-                        alt={cart.image}
-                        fill
-                        style={{ objectFit: "cover" }}
-                      />
-                    </Box>
-
-                    {/* Product Details */}
-                    <Box flex={1} width="100%">
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                      >
-                        <Box>
-                          <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                            sx={{ mb: 0.5 }}
-                          >
-                            {cart.name}
-                          </Typography>
-                         
-                        </Box>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          ₹{cart.price.toFixed(2)}
-                        </Typography>
-                      </Box>
-
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        mt={2}
-                      >
-                        <Chip
-                          label={cart.category}
-                          size="small"
-                          variant="outlined"
-                        />
-                        <Typography variant="body2" color="text.secondary">
-                          Qty: {cart.quantity}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </motion.div>
-              ))}
-            </Stack>
-          </Grid>
-
-          {/* Order Summary */}
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <CartSummary
-              productsTotal={calculateSubtotal()}
-              shipping={9.99}
-              itemsCount={cartItems.length}
-            />
-
-            {/* Promo Code */}
-            <Box
-              mt={3}
-              p={2}
-              sx={{
-                border: "1px dashed",
-                borderColor: "divider",
-                borderRadius: 1,
-              }}
-            >
-              <Typography variant="body1" fontWeight="bold" mb={1}>
-                Have a promo code?
-              </Typography>
-              <Box display="flex" gap={1}>
-                <input
-                  type="text"
-                  placeholder="Enter promo code"
-                  style={{
-                    flex: 1,
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #ddd",
-                    fontSize: "14px",
-                  }}
-                />
-                <Button variant="outlined" size="small">
-                  Apply
+            {cartItems.length === 0 ? (
+              <Box textAlign="center" py={8}>
+                <Typography variant="h5" mb={2}>
+                  Your cart is empty
+                </Typography>
+                <Button variant="contained" href="/">
+                  Continue Shopping
                 </Button>
               </Box>
-            </Box>
-          </Grid>
-        </Grid>
+            ) : (
+              <Grid container spacing={4}>
+                {/* Cart Items */}
+                <Grid item size={{ xs: 12, md: 6 }}>
+                  <Stack spacing={3}>
+                    {cartItems.map((cart, index) => (
+                      <motion.div
+                        key={cart.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                      >
+                        <Box
+                          display="flex"
+                          flexDirection={{ xs: "column", sm: "row" }}
+                          alignItems={{ xs: "flex-start", sm: "center" }}
+                          justifyContent="space-between"
+                          p={3}
+                          sx={{
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            backgroundColor: "background.paper",
+                            position: "relative",
+                            gap: 3,
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          {/* Delete Button */}
+                          <IconButton
+                            sx={{
+                              position: "absolute",
+                              top: 8,
+                              right: 8,
+                              color: "text.secondary",
+                              "&:hover": { color: "error.main" },
+                            }}
+                            onClick={() => {
+                              handleRemoveFromCart(cart.id);
+                            }}
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+
+                          {/* Product Image */}
+                          <Box
+                            sx={{
+                              width: { xs: "100%", sm: 120 },
+                              height: 120,
+                              position: "relative",
+                              borderRadius: 1,
+                              overflow: "hidden",
+                            }}
+                          >
+                            <Image
+                              src={cart.image}
+                              alt={cart.image}
+                              fill
+                              style={{ objectFit: "cover" }}
+                            />
+                          </Box>
+
+                          {/* Product Details */}
+                          <Box flex={1} width="100%">
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="flex-start"
+                            >
+                              <Box>
+                                <Typography
+                                  variant="subtitle1"
+                                  fontWeight="bold"
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  {cart.name}
+                                </Typography>
+                              </Box>
+                              <Typography variant="subtitle1" fontWeight="bold">
+                                ₹{cart.price}
+                              </Typography>
+                            </Box>
+
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              mt={2}
+                            >
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Qty: {cart.quantity}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      </motion.div>
+                    ))}
+                  </Stack>
+                </Grid>
+
+                {/* Order Summary */}
+                <Grid item size={{ xs: 12, md: 6 }}>
+                  <CartSummary
+                    productsTotal={calculateSubtotal()}
+                    shipping={9.99}
+                    itemsCount={cartItems.length}
+                  />
+
+                  {/* Promo Code */}
+                  <Box
+                    mt={3}
+                    p={2}
+                    sx={{
+                      border: "1px dashed",
+                      borderColor: "divider",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight="bold" mb={1}>
+                      Have a promo code?
+                    </Typography>
+                    <Box display="flex" gap={1}>
+                      <input
+                        type="text"
+                        placeholder="Enter promo code"
+                        style={{
+                          flex: 1,
+                          padding: "8px 12px",
+                          borderRadius: "4px",
+                          border: "1px solid #ddd",
+                          fontSize: "14px",
+                        }}
+                      />
+                      <Button variant="outlined" size="small">
+                        Apply
+                      </Button>
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            )}
+          </Container>
+        </>
       )}
-    </Container>
+    </Box>
   );
 }
 

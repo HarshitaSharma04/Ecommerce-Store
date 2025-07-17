@@ -10,13 +10,11 @@ export async function GET() {
         products: true,
       },
     });
-
     // Map to include totalProducts
     const formatted = categories.map((cat) => ({
       ...cat,
       totalProducts: cat.products.length,
     }));
-
     return NextResponse.json({ success: true, data: formatted });
   } catch (error) {
     console.error("Error fetching categories:", error.message);

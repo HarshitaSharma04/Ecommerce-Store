@@ -15,6 +15,8 @@ import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { getSession } from "next-auth/react";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/app/store/authSlice";
 
 export default function LoginPage() {
   const [authError, setAuthError] = useState("");
@@ -32,11 +34,12 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const dispatch = useDispatch();
+
   const onSubmit = async (data) => {
     setAuthError("");
     console.log("Login Data:", data);
 
-    // Add your login logic here
     try {
       const result = await signIn("credentials", {
         email: data.email,
@@ -45,8 +48,19 @@ export default function LoginPage() {
       });
 
       const session = await getSession();
-      console.log("session:", session)
-      const role = session?.user?.role;
+      console.log("session:", session);
+
+      const user = session?.user;
+
+      if (!user) {
+        setAuthError("Invalid session.");
+        return;
+      }
+
+      // ✅ Set user to Redux
+      dispatch(setUser(user));
+
+      const role = user.role;
       if (role === "admin") {
         router.push("/admin");
       } else {
