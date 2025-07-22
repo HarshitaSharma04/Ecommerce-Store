@@ -47,27 +47,42 @@ export default function LoginPage() {
         redirect: false,
       });
 
-      const session = await getSession();
-      console.log("session:", session);
+      if (!result.ok) {
+        setAuthError("Invalid credentials");
+        return;
+      }
 
-      const user = session?.user;
+      // 🔄 Wait a moment before calling getSession
+      const waitForSession = async (retries = 5) => {
+        for (let i = 0; i < retries; i++) {
+          const session = await getSession();
+          if (session?.user) return session;
+          await new Promise((r) => setTimeout(r, 300)); // wait 300ms
+        }
+        return null;
+      };
 
-      if (!user) {
-        setAuthError("Invalid session.");
+      const session = await waitForSession();
+
+      console.log("✅ session:", session);
+
+      if (!session || !session.user) {
+        setAuthError("Session not available. Please try again.");
         return;
       }
 
       // ✅ Set user to Redux
-      dispatch(setUser(user));
+      dispatch(setUser(session.user));
 
-      const role = user.role;
+      const role = session.user.role;
       if (role === "admin") {
         router.push("/admin");
       } else {
         router.push("/profile");
       }
     } catch (error) {
-      console.log("error:", error);
+      console.error("Login error:", error);
+      setAuthError("Something went wrong.");
     }
   };
 

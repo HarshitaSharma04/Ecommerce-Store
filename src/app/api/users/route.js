@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   const session = await getServerSession(authOptions);
+  console.log("session data:", session);
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -21,10 +22,11 @@ export async function GET() {
       gender: true,
       address: true,
       avatar: true,
+      role: true,
     },
   });
 
-  console.log("user info :", user)
+  console.log("user info :", user);
 
   if (!user) {
     return Response.json({ error: "User not found" }, { status: 404 });

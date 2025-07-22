@@ -29,7 +29,7 @@ export default function SignupPage() {
 
   const onSubmit = async (data) => {
     console.log("signUp data:", data);
-
+    
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",

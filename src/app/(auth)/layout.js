@@ -1,4 +1,4 @@
-import AuthLayoutProvider from "../components/provider/AuthLayoutProvider";
+import ClientAuthLayout from "../components/provider/clientAuthLayout";
 
 export const metadata = {
   title: "ShopSmart: Auth",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function AuthLayout({ children }) {
-  return <AuthLayoutProvider>{children}</AuthLayoutProvider>;
+  return <ClientAuthLayout>{children}</ClientAuthLayout>;
 }

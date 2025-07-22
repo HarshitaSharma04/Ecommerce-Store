@@ -32,7 +32,7 @@ export default function ProductDetailPage() {
   const [imageUrl, setImageUrl] = useState("/product_default_image.jpg");
   const [selectedVariant, setSelectedVariant] = useState(0);
   const user = useSelector((state) => state.auth.user);
-  console.log("user :", user)
+  console.log("user :", user);
 
   useEffect(() => {
     const fetchProductById = async (id) => {
@@ -69,55 +69,88 @@ export default function ProductDetailPage() {
     );
   };
 
-  const handleAddToCart = async () => {
-    const variant = product?.variant?.[selectedVariant];
-    if (!variant) {
-      console.error("Variant not found. selectedVariant =", selectedVariant);
-      return;
-    }
+const handleAddToCart = async () => {
+  const variant = product?.variant?.[selectedVariant];
+  if (!variant) {
+    console.error("Variant not found. selectedVariant =", selectedVariant);
+    return;
+  }
 
-    if (!user || !user.id) {
-      console.error(
-        "User not found. Make sure user is logged in and stored in Redux."
-      );
-      return;
-    }
-
-    const cartItem = {
-      userId: user?.id,
-      productId: product.id,
-      variantId: variant.variantId,
-      name: `${product.name} - ${variant.name}`,
-      image: variant.image || product.image,
-      price: variant.price,
-      quantity: 1,
-    };
-    console.log("userID:", user?.id);
-
-    console.log("dispatch item :", cartItem);
-    dispatch(addToCart(cartItem));
-    console.log("data sending to db:", cartItem);
-
-    try {
-      const res = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(cartItem),
-      });
-      const result = await res.json();
-      if (res.ok && result.success) {
-        console.log("item added to database:", result.data);
-        toast.success("Item added to cart")
-      } else {
-        console.log("not found");
-        toast.error("Something went wrong")
-      }
-    } catch (error) {
-      console.log("error:", error.message);
-    }
+  // define cartitems
+  const cartItem = {
+    userId: user?.id || null,
+    productId: product.id,
+    variantId: variant.variantId,
+    name: `${product.name} - ${variant.name}`,
+    image: variant.image || product.image,
+    price: variant.price,
+    quantity: 1,
   };
+
+  console.log("userID:", user?.id);
+  console.log("dispatch item:", cartItem);
+
+  // if user is not logged in 
+  if (!user || !user.id) {
+    // initialize localcart as empty 
+    let localCart = [];
+    try {
+      const storedCart = localStorage.getItem("cart");
+      const parsed = storedCart ? JSON.parse(storedCart) : [];
+      localCart = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.warn("Invalid local cart data:", e);
+      localCart = [];
+    }
+
+    // ✅ Check item already exists
+    const existingIndex = localCart.findIndex(
+      (item) =>
+        item.productId === cartItem.productId &&
+        item.variantId === cartItem.variantId
+    );
+
+    // if existing cartitem found 
+    if (existingIndex !== -1) {
+      // Increase quantity
+      localCart[existingIndex].quantity += cartItem.quantity;
+    } else {
+      // if cart item is not found
+      localCart.push(cartItem);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(localCart));
+    console.log("Saved to localStorage:", localCart);
+    toast.success("Item added to cart");
+    return;
+  }
+
+  // ✅ Logged-in user
+  dispatch(addToCart(cartItem));
+
+  // add item to db
+  try {
+    const res = await fetch("/api/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cartItem),
+    });
+    const result = await res.json();
+    if (res.ok && result.success) {
+      console.log("Item added to database:", result.data);
+      toast.success("Item added to cart");
+    } else {
+      console.log("Failed to add to DB:", result);
+      toast.error("Something went wrong while saving to cart");
+    }
+  } catch (error) {
+    console.log("Error:", error.message);
+    toast.error("Server error occurred");
+  }
+};
+
 
   if (loading) {
     return (

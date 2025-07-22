@@ -21,14 +21,30 @@ import {
   SignOut,
   User,
 } from "@phosphor-icons/react";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
+import "nprogress/nprogress.css";
 
 function AdminNav() {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
+  const user = useSelector((state) => state.auth.user);
+  // if (!user) {
+  //   return (
+  //     <Box sx={{ px: 2, py: 1 }}>
+  //       <Typography color="error">
+  //         User not found or not authenticated.
+  //       </Typography>
+  //     </Box>
+  //   );
+  // }
+
+  useEffect(() => {
+    console.log("Redux User:", user);
+  }, [user]);
 
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -89,7 +105,7 @@ function AdminNav() {
           </Tooltip>
           <Avatar
             onClick={handleAvatarClick}
-            // src="/assets/avatar.png"
+            src={user?.avatar || "/default_profile_image.jpg"}
             sx={{ cursor: "pointer" }}
           />
         </Stack>
@@ -126,10 +142,11 @@ function AdminNav() {
             }}
           >
             <Typography fontWeight="bold" fontSize={14}>
-              Harshita Sharma
+              {`${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() ||
+                "Your Name"}
             </Typography>
             <Typography fontSize={13} color="text.secondary">
-              example@gmail.com
+              {user?.email || "you@example.com"}
             </Typography>
           </Box>
 

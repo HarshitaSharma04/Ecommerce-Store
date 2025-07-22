@@ -21,7 +21,6 @@ export async function POST(req) {
         variantId,
       },
     });
-
     let cartItem;
 
     if (existingCartItem) {
@@ -30,7 +29,6 @@ export async function POST(req) {
         data: { quantity: existingCartItem.quantity + quantity },
       });
       console.log("updated Cart:", cartItem);
-      
     } else {
       cartItem = await prisma.cart.create({
         data: { userId, productId, variantId, name, image, price, quantity },
@@ -55,10 +53,23 @@ export async function POST(req) {
   }
 }
 
-export async function GET() {
+
+export async function GET(req) {
   try {
-    const cart = await prisma.cart.findMany();
-    console.log("cart data in db:", cart);
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const cart = await prisma.cart.findMany({
+      where: { userId },
+    });
+
     return NextResponse.json({
       success: true,
       message: "Fetch Cart Items",
@@ -76,3 +87,4 @@ export async function GET() {
     );
   }
 }
+

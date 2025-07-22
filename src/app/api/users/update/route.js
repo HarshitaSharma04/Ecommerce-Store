@@ -4,23 +4,32 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req) {
+export async function PUT(request) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return Response.json({ error: "Session not found" }, { status: 401 });
   }
-  const body = await req.json();
-  console.log("updated body:", body);
+
   try {
+    const formData = await request.formData();
+    const firstName = formData.get("firstName");
+    const lastName = formData.get("lastName");
+    const contact = formData.get("contact");
+    const email = formData.get("email");
+    const address = formData.get("address");
+    const avatar = formData.get("avatar");
+
+    console.log("body from frontend:", formData);
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        firstName: body.firstName,
-        lastName: body.lastName,
-        contact: body.contact,
-        gender: body.gender,
-        address: body.address,
-        avatar:body.avatar|| "n/a"
+        firstName,
+        lastName,
+        contact,
+        email,
+        address,
+        avatar,
       },
       select: {
         id: true,
@@ -33,6 +42,8 @@ export async function PUT(req) {
         email: true,
       },
     });
+    console.log("updated user:", updatedUser);
+
     return Response.json({ success: true, user: updatedUser }, { status: 200 });
   } catch (error) {
     console.error("Error updating user:", error);

@@ -4,14 +4,50 @@ import { Box, Stack, Typography } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+import { setSyncDone, setUser } from "@/app/store/authSlice";
 
 export default function AuthLayoutProvider({ children }) {
-  const pathname = usePathname(); // Needed to animate on route change
+  const pathname = usePathname();
+  // const dispatch = useDispatch();
+  // const { status } = useSession(); // get session status from next-auth
+
+  // useEffect(() => {
+  //   // only fetch user if authenticated
+  //   const fetchUser = async () => {
+  //     try {
+  //       const res = await fetch("/api/users");
+  //       const data = await res.json();
+
+  //       if (res.ok) {
+  //         console.log("Fetched user:", data);
+  //        const setData =  dispatch(setUser(data));
+  //         console.log("also set data to redux:",setData)
+  //       } else {
+  //         console.warn("User fetch failed:", data?.error);
+  //         dispatch(setUser(null));
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching user:", err);
+  //       dispatch(setUser(null));
+  //     } finally {
+  //       dispatch(setSyncDone(true));
+  //     }
+  //   };
+  //   fetchUser();
+  //   // if (status === "authenticated") {
+  //   //   fetchUser();
+  //   // } else if (status === "unauthenticated") {
+  //   //   dispatch(setUser(null));
+  //   //   dispatch(setSyncDone(true));
+  //   // }
+  // }, [status, dispatch]);
 
   return (
     <Box
-      // component={Link}
-      // href="/"
       sx={{
         display: { xs: "flex", lg: "grid" },
         flexDirection: "column",
@@ -22,10 +58,9 @@ export default function AuthLayoutProvider({ children }) {
     >
       {/* Left Section */}
       <Box sx={{ display: "flex", flex: "1 1 auto", flexDirection: "column" }}>
-        {/* Logo */}
         <Box
-        component={Link}
-        href="/"
+          component={Link}
+          href="/"
           sx={{
             p: 3,
             display: "flex",
@@ -48,12 +83,12 @@ export default function AuthLayoutProvider({ children }) {
             alignItems: "center",
             justifyContent: "center",
             p: { xs: 2, md: 3 },
-            position: "relative", // needed for animation stacking
+            position: "relative",
           }}
         >
           <AnimatePresence mode="wait">
             <motion.div
-              key={pathname} // This ensures a new animation on each route
+              key={pathname}
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}

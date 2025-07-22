@@ -1,14 +1,20 @@
 "use client";
 
-import { Provider } from "react-redux";
+import { SessionProvider } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import store from "./store/store";
+import { Provider } from "react-redux";
+import SessionSyncProvider from "./components/provider/SessionSyncProvider";
 
 export default function ClientProviders({ children }) {
   return (
-    <Provider store={store}>
-      <Toaster position="top-right" reverseOrder={false} />
-      {children}
-    </Provider>
+    <SessionProvider>
+      <Provider store={store}>
+        <SessionSyncProvider>
+          <Toaster position="top-right" reverseOrder={false} />
+          {children}
+        </SessionSyncProvider>
+      </Provider>
+    </SessionProvider>
   );
 }

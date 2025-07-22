@@ -119,6 +119,9 @@ function CartPage() {
   const [cartItems, setCartItems] = useState(cart);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const user = useSelector((state) => state.auth.user);
+  // const [isSyncDone, setIsSyncDone] = useState(false);
+  const isSyncDone = useSelector((state) => state.auth.isSyncDone);
 
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -147,18 +150,23 @@ function CartPage() {
     }
   };
 
-  //fetch cart products
+  // fetch cart products only after sync done
   useEffect(() => {
+    if (!isSyncDone) return;
+
     const fetchCart = async () => {
+      if (!user?.id) {
+        const guestCart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartItems(guestCart);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await fetch("/api/cart");
+        const res = await fetch(`/api/cart?userId=${user.id}`);
         const result = await res.json();
-        console.log("data comes from db:", result);
         if (res.ok) {
-          console.log("fetch data from db:", result.data);
           setCartItems(result.data);
-        } else {
-          console.log("cart data not found");
         }
       } catch (error) {
         console.log("error:", error.message);
@@ -166,8 +174,18 @@ function CartPage() {
         setTimeout(() => setLoading(false), 1500);
       }
     };
+
     fetchCart();
-  }, []);
+  }, [user?.id, isSyncDone]);
+
+  // Also handle guest cart if not logged in
+  useEffect(() => {
+    if (!user?.id && isSyncDone) {
+      const guestCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(guestCart);
+      setLoading(false);
+    }
+  }, [user?.id, isSyncDone]);
 
   return (
     <Box>

@@ -31,19 +31,27 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.email = user.email;
+        token.contact = user.contact;
+        token.address = user.address;
+        token.avatar = user.avatar;
+        token.name = `${user.firstName} ${user.lastName}`;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id; 
+      session.user.id = token.id;
       session.user.role = token.role;
+      session.user.email = token.email;
+      session.user.contact = token.contact;
+      session.user.address = token.address;
+      session.user.avatar = token.avatar;
+      session.user.name = token.name
       return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
 const handler = NextAuth(authOptions);
-
 export const GET = handler;
 export const POST = handler;
